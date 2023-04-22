@@ -19,6 +19,7 @@ import (
 var (
 	logLevel      string
 	address       string
+	port          string
 	databaseUrl   string
 	schemePath    string
 	key           string
@@ -33,7 +34,8 @@ func main() {
 	flag.StringVar(&logLevel, "ll", getEnv("LOGLEVEL", "info"), "LogLevel")
 	flag.StringVar(&databaseUrl, "du", getEnv("DATABASE_URL", "postgresql://ilfey:QWEasd123@localhost:5432/devpage"), "PostgreSQL database url")
 	flag.StringVar(&schemePath, "df", getEnv("DATABASE_SCHEME", "./scheme.sql"), "Scheme database file")
-	flag.StringVar(&address, "a", getEnv("ADDRESS", "0.0.0.0:8080"), "Address")
+	flag.StringVar(&address, "a", getEnv("ADDRESS", "0.0.0.0"), "Address")
+	flag.StringVar(&port, "p", getEnv("PORT", "8080"), "Port")
 	flag.StringVar(&adminPath, "ap", getEnv("ADMIN_PATH", "/admin"), "Admin path")
 	flag.StringVar(&adminUsername, "au", getEnv("ADMIN_USERNAME", "admin"), "Admin username")
 	flag.StringVar(&key, "jk", getEnv("JWT_KEY", "secret"), "JWT key")
@@ -43,7 +45,7 @@ func main() {
 
 	conf := new(config.Config)
 
-	conf.Addr = address
+	conf.Addr = address + ":" + port
 	conf.LifeSpan = lifeSpan
 	conf.AdminPath = adminPath
 	conf.AdminUsername = adminUsername
