@@ -13,15 +13,10 @@ CREATE TABLE IF NOT EXISTS users(
 CREATE TABLE IF NOT EXISTS messages(
   id bigint primary key generated always as identity,
   content varchar(2000) not null,
+  userId varchar(16) not null,
   reply bigint,
   modified_at timestamp default now(),
   created_at timestamp default now(),
-  foreign key(reply) references messages(id)
-);
-
-CREATE TABLE IF NOT EXISTS user_messages(
-  userId varchar(16) primary key,
-  messageId bigint primary key,
-  foreign key(userId) references users(username),
-  foreign key(messageId) references messages(id)
+  foreign key(reply) references messages(id),
+  foreign key(userId) references users(username)
 );

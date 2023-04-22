@@ -15,18 +15,11 @@ type messageRepository struct {
 }
 
 func (r *messageRepository) Create(ctx context.Context, m *models.Message) error {
-	q := `WITH msgId AS (
-  INSERT INTO messages(content, reply)
-		VALUES ($1, $2) RETURNING id
-	)
-
-	INSERT INTO user_messages(userId, messageId)
-	SELECT $3, id
-	FROM msgId;`
+	q := `INSERT INTO messages(content, userId, reply) VALUES ($1, $2, $3);`
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	_, err := r.db.Exec(ctx, q, m.Content, m.Reply, m.Username)
+	_, err := r.db.Exec(ctx, q, m.Content, m.Username, m.Reply)
 	if err != nil {
 		r.logger.Errorf("Unknown create error: %v", err)
 
@@ -37,7 +30,7 @@ func (r *messageRepository) Create(ctx context.Context, m *models.Message) error
 }
 
 func (r *messageRepository) ReadAll(ctx context.Context) ([]*models.Message, error) {
-	q := "SELECT id, userId, content, reply, modified_at, created_at from messages JOIN user_messages ON messages.id = user_messages.messageId;"
+	q := "SELECT id, userId, content, reply, modified_at, created_at FROM messages;"
 
 	r.logger.Tracef("SQL Query: %s", q)
 

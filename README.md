@@ -19,27 +19,21 @@ title: "devpage database scheme"
 
 erDiagram
     users {
-        varchar username PK
-        varchar password
+        varchar(16) username PK
+        varchar(64) password
         timestamp created_at
-    }
-
-    user_messages {
-        bigint userId PK, FK
-        bigint messageId PK, FK
     }
 
     messages {
         bigint id PK
         varchar(2000) content
-        bigint authorId
+        varchar(16) userId FK
         bigint reply FK
         timestamp modified_at
         timestamp created_at
     }
 
-    users only one to zero or many user_messages : ""
-    messages only one to zero or many user_messages : ""
+    users only one to zero or many messages : ""
 ```
 
 ## Запланированная схема бд
@@ -51,20 +45,16 @@ title: "devpage database scheme"
 
 erDiagram
     users {
-        varchar username PK
-        varchar password
+        varchar(16) username PK
+        varchar(64) password
+        bigint profile FK
         timestamp created_at
-    }
-
-    user_messages {
-        bigint userId PK, FK
-        bigint messageId PK, FK
     }
 
     messages {
         bigint id PK
         varchar(2000) content
-        bigint authorId
+        varchar(16) userId FK
         bigint reply FK
         timestamp modified_at
         timestamp created_at
@@ -101,8 +91,7 @@ erDiagram
     }
 
     users only one to only one links : ""
-    users only one to zero or many user_messages : ""
-    messages only one to zero or many user_messages : ""
+    users only one to zero or many messages : ""
     messages only one to zero or many attachments : ""
     links only one to zero or many attachments : ""
     links only one to zero or many projects : ""
