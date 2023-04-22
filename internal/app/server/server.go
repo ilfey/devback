@@ -5,7 +5,7 @@ import (
 	"github.com/ilfey/devback/internal/app/config"
 	"github.com/ilfey/devback/internal/app/middlewares"
 	"github.com/ilfey/devback/internal/pkg/services"
-	"github.com/ilfey/devback/internal/pkg/servicesimp"
+	"github.com/ilfey/devback/internal/pkg/iservices"
 	"github.com/ilfey/devback/internal/pkg/store"
 	"github.com/sirupsen/logrus"
 )
@@ -17,7 +17,7 @@ type Server struct {
 	Store  *store.Store
 
 	Services struct {
-		JWT services.JWT
+		JWT iservices.JWT
 	}
 
 	groups struct {
@@ -34,7 +34,7 @@ func NewServer(config *config.Config, logger *logrus.Logger, store *store.Store)
 	s.Logger = logger
 	s.Store = store
 
-	s.Services.JWT = servicesimp.NewService(config.Key, config.LifeSpan)
+	s.Services.JWT = services.NewService(config.Key, config.LifeSpan)
 
 	s.groups.admin = s.Router.Group(config.AdminPath, middlewares.AdminAuthMiddleware(s.Services.JWT, s.Config))
 	s.groups.user = s.Router.Group("/", middlewares.JwtAuthMiddleware(s.Services.JWT))

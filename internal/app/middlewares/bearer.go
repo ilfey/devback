@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ilfey/devback/internal/pkg/services"
+	"github.com/ilfey/devback/internal/pkg/iservices"
 )
 
-func JwtAuthMiddleware(jwt services.JWT) gin.HandlerFunc {
+func JwtAuthMiddleware(jwt iservices.JWT) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		token := jwt.GetToken(ctx)

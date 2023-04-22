@@ -5,11 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ilfey/devback/internal/pkg/models"
-	"github.com/ilfey/devback/internal/pkg/services"
+	"github.com/ilfey/devback/internal/pkg/iservices"
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
-func Login(s *store.Store, jwt services.JWT) gin.HandlerFunc {
+func Login(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 	type resp struct {
 		Token string `json:"token"`
 	}

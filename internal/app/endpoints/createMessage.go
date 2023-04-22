@@ -5,11 +5,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ilfey/devback/internal/pkg/models"
-	"github.com/ilfey/devback/internal/pkg/services"
+	"github.com/ilfey/devback/internal/pkg/iservices"
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
-func CreateMessage(s *store.Store, jwt services.JWT) gin.HandlerFunc {
+func CreateMessage(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		body := new(models.Message)
 

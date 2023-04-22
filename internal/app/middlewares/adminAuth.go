@@ -5,10 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ilfey/devback/internal/app/config"
-	"github.com/ilfey/devback/internal/pkg/services"
+	"github.com/ilfey/devback/internal/pkg/iservices"
 )
 
-func AdminAuthMiddleware(jwt services.JWT, config *config.Config) gin.HandlerFunc {
+func AdminAuthMiddleware(jwt iservices.JWT, config *config.Config) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		token := jwt.GetToken(ctx)
