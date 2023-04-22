@@ -20,7 +20,7 @@ func NewService(key string, lifespan int) iservices.JWT {
 	return &Service{
 		SecretKey: key,
 		LifeSpan:  lifespan,
-		Issure:    "Bikash",
+		Issure:    "devback",
 	}
 }
 
