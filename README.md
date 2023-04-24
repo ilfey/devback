@@ -5,10 +5,15 @@
 ## endpoints
 
 - `/` GET
-- `/messages` GET
-- `/message` POST
-- `/user/login` POST
-- `/user/register` POST
+- `/api/v1/messages` GET
+- `/api/v1/user/login` POST
+- `/api/v1/user/register` POST
+- `/api/v1/user/delete` POST
+- `/api/v1/user/message` POST, DELETE, PATCH
+- `/api/v1/<admin path>/user/message` DELETE, PATCH
+- `/api/v1/<admin path>/user/message/restore` POST
+- `/api/v1/<admin path>/user` DELETE
+- `/api/v1/<admin path>/user/restore` POST
 
 ## Текущая схема бд
 
@@ -21,6 +26,7 @@ erDiagram
     users {
         varchar(16) username PK
         varchar(64) password
+        boolean is_deleted
         timestamp created_at
     }
 
@@ -29,6 +35,7 @@ erDiagram
         varchar(2000) content
         varchar(16) userId FK
         bigint reply FK
+        boolean is_deleted
         timestamp modified_at
         timestamp created_at
     }
@@ -48,6 +55,7 @@ erDiagram
         varchar(16) username PK
         varchar(64) password
         bigint profile FK
+        boolean is_deleted
         timestamp created_at
     }
 
@@ -56,6 +64,7 @@ erDiagram
         varchar(2000) content
         varchar(16) userId FK
         bigint reply FK
+        boolean is_deleted
         timestamp modified_at
         timestamp created_at
     }

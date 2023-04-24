@@ -15,17 +15,14 @@ func AdminAuthMiddleware(jwt iservices.JWT, config *config.Config) gin.HandlerFu
 
 		_, err := jwt.ValidateToken(token)
 		if err != nil {
-			print("token invalid")
 			ctx.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 
 		var username string
+
 		username, err = jwt.GetTokenId(ctx)
-		print(username)
-		print(config.AdminUsername)
 		if err != nil || username != config.AdminUsername {
-			print("username")
 			ctx.AbortWithStatus(http.StatusNotFound)
 			return
 		}

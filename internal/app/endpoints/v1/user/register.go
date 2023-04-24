@@ -1,4 +1,4 @@
-package endpoints
+package user
 
 import (
 	"net/http"
@@ -15,19 +15,32 @@ func Register(s *store.Store) gin.HandlerFunc {
 		body := new(models.User)
 
 		if err := ctx.BindJSON(body); err != nil {
-			ctx.AbortWithStatus(http.StatusBadRequest)
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error":   "invalid body",
+				"message": err.Error(),
+			})
 			return
 		}
 
 		if err := s.User.Create(ctx.Request.Context(), body); err != nil {
 			if pgErr, ok := err.(*pgconn.PgError); ok {
 				if pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
-					ctx.AbortWithStatus(http.StatusConflict)
+					ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
+						"error":   "user create error",
+						"message": "user already exists",
+					})
+					return
 				}
+				ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
+					"error":   "user create error",
+					"message": "user not created",
+				})
 			}
 			return
 		}
 
-		ctx.AbortWithStatus(http.StatusCreated)
+		ctx.JSON(http.StatusCreated, gin.H{
+			"message": "success",
+		})
 	}
 }

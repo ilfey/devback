@@ -1,4 +1,4 @@
-package endpoints
+package v1
 
 import (
 	"net/http"
@@ -11,7 +11,15 @@ func ReadMessages(s *store.Store) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		msgs, err := s.Message.ReadAll(ctx.Request.Context())
 		if err != nil {
-			ctx.AbortWithStatus(http.StatusInternalServerError)
+			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+				"error":   "messages read error",
+				"message": "messages not found",
+			})
+			return
+		}
+
+		if msgs == nil {
+			ctx.JSON(http.StatusOK, make([]int, 0))
 			return
 		}
 

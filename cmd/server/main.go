@@ -23,6 +23,7 @@ var (
 	databaseUrl   string
 	schemePath    string
 	key           string
+	apiPath       string
 	adminPath     string
 	adminUsername string
 	lifeSpan      int
@@ -36,6 +37,7 @@ func main() {
 	flag.StringVar(&schemePath, "df", getEnv("DATABASE_SCHEME", "./scheme.sql"), "Scheme database file")
 	flag.StringVar(&address, "a", getEnv("ADDRESS", "0.0.0.0"), "Address")
 	flag.StringVar(&port, "p", getEnv("PORT", "8080"), "Port")
+	flag.StringVar(&apiPath, "api", getEnv("API_PATH", "/api"), "Api path")
 	flag.StringVar(&adminPath, "ap", getEnv("ADMIN_PATH", "/admin"), "Admin path")
 	flag.StringVar(&adminUsername, "au", getEnv("ADMIN_USERNAME", "admin"), "Admin username")
 	flag.StringVar(&key, "jk", getEnv("JWT_KEY", "secret"), "JWT key")
@@ -47,6 +49,7 @@ func main() {
 
 	conf.Addr = address + ":" + port
 	conf.LifeSpan = lifeSpan
+	conf.ApiPath = apiPath
 	conf.AdminPath = adminPath
 	conf.AdminUsername = adminUsername
 	conf.Key = key
@@ -103,6 +106,7 @@ func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
 	}
+
 	return fallback
 }
 
@@ -112,15 +116,17 @@ func getEnvInt(key string, fallback int) int {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		return value
 	}
+
 	return fallback
 }
 
 func createLogger(level string) (*logrus.Logger, error) {
 	logger := logrus.New()
-	lvl, err := logrus.ParseLevel(level)
 
+	lvl, err := logrus.ParseLevel(level)
 	if err != nil {
 		return nil, err
 	}

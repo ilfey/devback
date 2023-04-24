@@ -7,6 +7,7 @@
 CREATE TABLE IF NOT EXISTS users(
   username varchar(16) primary key,
   password varchar(64) not null,
+  is_deleted boolean not null default false,
   created_at timestamp default now()
 );
 
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS messages(
   reply bigint,
   modified_at timestamp default now(),
   created_at timestamp default now(),
-  foreign key(reply) references messages(id),
+  is_deleted boolean not null default false,
+  foreign key(reply) references messages(id) on delete set null,
   foreign key(userId) references users(username)
 );

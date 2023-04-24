@@ -36,7 +36,7 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) error {
 }
 
 func (r *userRepository) Find(ctx context.Context, username string) (*models.User, error) {
-	q := "SELECT username, password, created_at FROM users WHERE username = $1;"
+	q := "SELECT username, password, created_at FROM users WHERE username = $1 and is_deleted = false;"
 
 	u := new(models.User)
 
@@ -60,9 +60,15 @@ func (r *userRepository) Find(ctx context.Context, username string) (*models.Use
 func (r *userRepository) ResetPassword(ctx context.Context, user *models.User) error {
 	q := "UPDATE users SET password = $1 WHERE username = $2;"
 
+	if err := user.BeforeCreate(); err != nil {
+		r.logger.Errorf("Error BeforeCreate: %v", err)
+
+		return err
+	}
+
 	r.logger.Tracef("SQL Query: %s", q)
 
-	_, err := r.db.Exec(ctx, q, user.Password, user.Username)
+	_, err := r.db.Exec(ctx, q, user.Hash, user.Username)
 	if err != nil {
 		r.logger.Errorf("Unknown ResetPassword error: %v", err)
 
@@ -73,7 +79,37 @@ func (r *userRepository) ResetPassword(ctx context.Context, user *models.User) e
 }
 
 func (r *userRepository) Delete(ctx context.Context, username string) error {
+	q := "UPDATE users SET is_deleted = true WHERE username = $1;"
+
+	r.logger.Tracef("SQL Query: %s", q)
+
+	_, err := r.db.Exec(ctx, q, username)
+	if err != nil {
+		r.logger.Errorf("Unknown Delete error: %v", err)
+
+		return err
+	}
+
+	return nil
+}
+
+func (r *userRepository) DeletePermanently(ctx context.Context, username string) error {
 	q := "DELETE FROM users WHERE username = $1;"
+
+	r.logger.Tracef("SQL Query: %s", q)
+
+	_, err := r.db.Exec(ctx, q, username)
+	if err != nil {
+		r.logger.Errorf("Unknown Delete error: %v", err)
+
+		return err
+	}
+
+	return nil
+}
+
+func (r *userRepository) Restore(ctx context.Context, username string) error {
+	q := "UPDATE users SET is_deleted = false WHERE username = $1;"
 
 	r.logger.Tracef("SQL Query: %s", q)
 

@@ -14,7 +14,10 @@ func JwtAuthMiddleware(jwt iservices.JWT) gin.HandlerFunc {
 
 		_, err := jwt.ValidateToken(token)
 		if err != nil {
-			ctx.AbortWithStatus(http.StatusUnauthorized)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error":   "authorization error",
+				"message": "not authorized",
+			})
 			return
 		}
 
