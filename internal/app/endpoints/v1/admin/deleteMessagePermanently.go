@@ -1,17 +1,15 @@
-package user
+package admin
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ilfey/devback/internal/pkg/iservices"
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
-func DeleteMessage(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
+func DeleteMessagePermanently(s *store.Store) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-
 		idString := ctx.Param("id")
 
 		id, err := strconv.ParseUint(idString, 10, 64)
@@ -23,19 +21,10 @@ func DeleteMessage(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 			return
 		}
 
-		username, err := jwt.GetTokenId(ctx)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error":   "identification error",
-				"message": "you are not identified",
-			})
-			return
-		}
-
-		if err := s.Message.DeleteWithUsername(ctx.Request.Context(), uint(id), username); err != nil {
+		if err := s.Message.DeletePermanently(ctx.Request.Context(), uint(id)); err != nil {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error":   "message delete error",
-				"message": "message not deleted",
+				"error":   "message delete permanently error",
+				"message": err.Error(),
 			})
 			return
 		}

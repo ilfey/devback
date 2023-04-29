@@ -62,9 +62,9 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 			endpoint: userV1.Register(s.Store),
 		},
 		{
-			role:     GUEST,
+			role:     USER,
 			method:   post,
-			path:     "/user/delete",
+			path:     "/delete",
 			endpoint: userV1.DeleteAccount(s.Store, s.Services.JWT),
 		},
 		{
@@ -76,7 +76,7 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 		{
 			role:     USER,
 			method:   delete,
-			path:     "/message",
+			path:     "/message/:id",
 			endpoint: userV1.DeleteMessage(s.Store, s.Services.JWT),
 		},
 		{
@@ -88,8 +88,14 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 		{
 			role:     ADMIN,
 			method:   delete,
-			path:     "/user/message",
+			path:     "/user/message/:id",
 			endpoint: adminV1.DeleteMessage(s.Store),
+		},
+		{
+			role:     ADMIN,
+			method:   delete,
+			path:     "/user/message/:id/permanently",
+			endpoint: adminV1.DeleteMessagePermanently(s.Store),
 		},
 		{
 			role:     ADMIN,
@@ -100,19 +106,25 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 		{
 			role:     ADMIN,
 			method:   post,
-			path:     "/user/message/restore",
+			path:     "/user/message/:id/restore",
 			endpoint: adminV1.RestoreMessage(s.Store),
 		},
 		{
 			role:     ADMIN,
 			method:   delete,
-			path:     "/user",
+			path:     "/user/:username",
 			endpoint: adminV1.DeleteAccount(s.Store),
 		},
 		{
 			role:     ADMIN,
+			method:   delete,
+			path:     "/user/:username/permanently",
+			endpoint: adminV1.DeleteAccountPermanently(s.Store),
+		},
+		{
+			role:     ADMIN,
 			method:   post,
-			path:     "/user/restore",
+			path:     "/user/:username/restore",
 			endpoint: adminV1.RestoreAccount(s.Store),
 		},
 	}

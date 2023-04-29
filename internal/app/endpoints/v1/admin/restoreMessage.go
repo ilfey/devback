@@ -2,27 +2,26 @@ package admin
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
 func RestoreMessage(s *store.Store) gin.HandlerFunc {
-	type req struct {
-		Id uint `json:"id" binding:"required,min=1"`
-	}
 	return func(ctx *gin.Context) {
-		body := new(req)
+		idString := ctx.Param("id")
 
-		if err := ctx.BindJSON(body); err != nil {
+		id, err := strconv.ParseUint(idString, 10, 64)
+		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error":   "invalid body",
+				"error":   "error parse id",
 				"message": err.Error(),
 			})
 			return
 		}
 
-		if err := s.Message.Restore(ctx.Request.Context(), body.Id); err != nil {
+		if err := s.Message.Restore(ctx.Request.Context(), uint(id)); err != nil {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error":   "message restore error",
 				"message": err.Error(),

@@ -97,7 +97,7 @@ func (r *messageRepository) Edit(ctx context.Context, content string, id uint) e
 }
 
 func (r *messageRepository) DeleteWithUsername(ctx context.Context, id uint, username string) error {
-	q := "DELETE FROM messages WHERE id = $1 AND username = $2;"
+	q := "DELETE FROM messages WHERE id = $1 AND userId = $2;"
 
 	r.logger.Tracef("SQL Query: %s", q)
 
