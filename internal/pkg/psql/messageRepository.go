@@ -31,7 +31,7 @@ func (r *messageRepository) Create(ctx context.Context, m *models.Message) error
 }
 
 func (r *messageRepository) ReadAll(ctx context.Context) ([]*models.Message, error) {
-	q := "SELECT id, userId, content, reply, modified_at, created_at FROM messages WHERE is_deleted = false;"
+	q := "SELECT id, userId, content, reply, modified_at, created_at FROM messages WHERE is_deleted = false ORDER BY id ASC;"
 
 	r.logger.Tracef("SQL Query: %s", q)
 
