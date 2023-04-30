@@ -36,7 +36,7 @@ func CreateMessage(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"error":   "create message error",
-				"message": "success",
+				"message": "message not created",
 			})
 			return
 		}
