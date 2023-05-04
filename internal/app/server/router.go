@@ -82,7 +82,7 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 		{
 			role:     USER,
 			method:   patch,
-			path:     "/message",
+			path:     "/message/:id",
 			endpoint: userV1.EditMessage(s.Store, s.Services.JWT),
 		},
 		{
@@ -100,7 +100,7 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 		{
 			role:     ADMIN,
 			method:   patch,
-			path:     "/user/message",
+			path:     "/user/message/:id",
 			endpoint: adminV1.EditMessage(s.Store),
 		},
 		{

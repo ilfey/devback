@@ -9,10 +9,9 @@
 - `/api/v1/user/login` POST
 - `/api/v1/user/register` POST
 - `/api/v1/user/delete` POST
-- `/api/v1/user/message` POST, PATCH
-- `/api/v1/user/message/:id` DELETE
-- `/api/v1/<admin path>/user/message` PATCH
-- `/api/v1/<admin path>/user/message/:id` DELETE
+- `/api/v1/user/message` POST
+- `/api/v1/user/message/:id` PATCH, DELETE
+- `/api/v1/<admin path>/user/message/:id` PATCH, DELETE
 - `/api/v1/<admin path>/user/message/:id/permanently` DELETE
 - `/api/v1/<admin path>/user/message/:id/restore` POST
 - `/api/v1/<admin path>/user/:username` DELETE
