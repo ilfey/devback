@@ -44,6 +44,9 @@ func (s *Server) Build() {
 	// Add cors middleware
 	s.Router.Use(middlewares.CorsMiddleware())
 
+	// Add logging middleware
+	s.Router.Use(middlewares.LoggingMiddleWare(s.Logger))
+
 	// Create services
 	s.Services.JWT = services.NewService(s.Config.Key, s.Config.LifeSpan)
 
