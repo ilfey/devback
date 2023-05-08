@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 type Config struct {
 	Addr          string
 	ApiPath       string
@@ -7,4 +9,5 @@ type Config struct {
 	AdminUsername string
 	LifeSpan      int
 	Key           string
+	StartTime     time.Time
 }

@@ -46,6 +46,12 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 		{
 			role:     GUEST,
 			method:   get,
+			path:     "/ping",
+			endpoint: v1.Ping(s.Config, s.Services.JWT),
+		},
+		{
+			role:     GUEST,
+			method:   get,
 			path:     "/messages",
 			endpoint: v1.ReadMessages(s.Store),
 		},

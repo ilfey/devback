@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/ilfey/devback/internal/app/config"
 	"github.com/ilfey/devback/internal/app/server"
@@ -53,6 +54,7 @@ func main() {
 	conf.AdminPath = adminPath
 	conf.AdminUsername = adminUsername
 	conf.Key = key
+	conf.StartTime = time.Now()
 
 	log, err := createLogger(logLevel)
 	if err != nil {
