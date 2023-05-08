@@ -1,0 +1,52 @@
+# https://taskfile.dev
+
+version: '3'
+
+
+vars:
+  EXE: server{{exeExt}}
+
+
+tasks:
+  default:
+    - task: dev
+
+  dev:
+    desc: Live restart server
+    aliases: [run]
+    deps: [build]
+    cmds:
+      - go build -v ./cmd/server
+      - ./{{.EXE}}
+    sources:
+      - ./**/*.go
+      - ./**/*.tpl
+      - ./**/*.tmpl
+      - ./**/*.html
+      - ./**/*.env
+
+  build:
+    desc: Build server
+    deps: [format]
+    cmds:
+      - go build -v ./cmd/server
+
+  format:
+    desc: Format sources
+    cmds:
+      - go fmt {{catLines .PACKAGES}}
+    vars:
+      PACKAGES:
+        sh: go list ./...
+    silent: true
+
+  mod:
+    desc: Downloads and tidy Go modules
+    cmds:
+      - go mod download
+      - go mod tidy
+  
+  clean:
+    desc: Clean every generated file
+    cmds:
+      - rm -f {{.EXE}}
