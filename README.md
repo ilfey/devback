@@ -2,21 +2,31 @@
 
 Бекэнд написанный на фреймворке gin
 
+---
+
 ## endpoints
 
 - `/` GET
+- `api/v1/ping` GET
 - `/api/v1/messages` GET
+- `/api/v1/contacts` GET
+- `/api/v1/contacts/:id` GET
 - `/api/v1/user/login` POST
 - `/api/v1/user/register` POST
 - `/api/v1/user/delete` POST
 - `/api/v1/user/message` POST
 - `/api/v1/user/message/:id` PATCH, DELETE
-- `/api/v1/<admin path>/user/message/:id` PATCH, DELETE
-- `/api/v1/<admin path>/user/message/:id/permanently` DELETE
-- `/api/v1/<admin path>/user/message/:id/restore` POST
-- `/api/v1/<admin path>/user/:username` DELETE
-- `/api/v1/<admin path>/user/:username/permanently` DELETE
-- `/api/v1/<admin path>/user/:username/restore` POST
+- `/api/v1/<admin path>/users/messages/:id` PATCH, DELETE
+- `/api/v1/<admin path>/users/messages/:id/permanently` DELETE
+- `/api/v1/<admin path>/users/messages/:id/restore` POST
+- `/api/v1/<admin path>/users/:username` DELETE
+- `/api/v1/<admin path>/users/:username/permanently` DELETE
+- `/api/v1/<admin path>/users/:username/restore` POST
+- `/api/v1/<admin path>/links` GET, POST
+- `/api/v1/<admin path>/links/:id` GET, DELETE
+- `/api/v1/<admin path>/links/:id/permanently` DELETE
+- `/api/v1/<admin path>/links/:id/restore` POST
+- `/api/v1/<admin path>/contacts` POST
 
 ## Текущая схема бд
 
@@ -43,6 +53,26 @@ erDiagram
         timestamp created_at
     }
 
+    links {
+        bigint id PK
+        varchar description
+        varchar url
+        boolean is_deleted
+        timestamp modified_at
+        timestamp created_at
+    }
+
+    contacts {
+        bigint id PK
+        varchar title
+        bigint linkId FK
+        boolean is_deleted
+        timestamp modified_at
+        timestamp created_at
+    }
+
+    
+    links only one to zero or many contacts : ""
     users only one to zero or many messages : ""
 ```
 
@@ -88,18 +118,17 @@ erDiagram
         timestamp createdAt
     }
 
-    contacts {
-        bigint id PK
-        varchar title
-        varchar logo
-        bigint linkUrl FK
-        bool isPrimary
-    }
-
     links {
         bigint id PK
         varchar description
         varchar url
+    }
+
+    contacts {
+        bigint id PK
+        varchar title
+        bigint linkId FK
+        bool isPrimary
     }
 
     users only one to only one links : ""
@@ -110,3 +139,12 @@ erDiagram
     links only one to zero or many contacts : ""
 
 ```
+
+
+## Todo
+
+- [ ] добавить PATCH для links
+- [ ] добавить остальные методы для contacts
+- [ ] добавить уведомления по e-mail, хотя бы для админа
+  - [ ] добавить возможность смены пароля пользователям
+- [ ] добавить сущности user новый атрибут profile FK links(id)

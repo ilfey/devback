@@ -7,22 +7,23 @@ import (
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
-func ReadMessages(s *store.Store) gin.HandlerFunc {
+func GetContacts(s *store.Store) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		msgs, err := s.Message.ReadAll(ctx.Request.Context())
+
+		links, err := s.Contact.FindAll(ctx.Request.Context())
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"error":   "messages read error",
-				"message": "messages not found",
+				"error":   "contacts read error",
+				"message": "contacts not found",
 			})
 			return
 		}
 
-		if msgs == nil {
+		if links == nil {
 			ctx.JSON(http.StatusOK, make([]int, 0))
 			return
 		}
 
-		ctx.JSON(http.StatusOK, msgs)
+		ctx.JSON(http.StatusOK, links)
 	}
 }

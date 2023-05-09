@@ -30,7 +30,7 @@ func (r *messageRepository) Create(ctx context.Context, m *models.Message) error
 	return nil
 }
 
-func (r *messageRepository) ReadAll(ctx context.Context) ([]*models.Message, error) {
+func (r *messageRepository) FindAll(ctx context.Context) ([]*models.Message, error) {
 	q := "SELECT id, userId, content, reply, modified_at, created_at FROM messages WHERE is_deleted = false ORDER BY id ASC;"
 
 	r.logger.Tracef("SQL Query: %s", q)
@@ -43,7 +43,7 @@ func (r *messageRepository) ReadAll(ctx context.Context) ([]*models.Message, err
 			return nil, err
 		}
 
-		r.logger.Errorf("Unknown ReadAll error: %v", err)
+		r.logger.Errorf("Unknown FindAll error: %v", err)
 
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (r *messageRepository) ReadAll(ctx context.Context) ([]*models.Message, err
 
 		err := rows.Scan(&msg.Id, &msg.Username, &msg.Content, &msg.Reply, &msg.CreatedAt, &msg.ModifiedAt)
 		if err != nil {
-			r.logger.Errorf("Scan ReadAll error: %v", err)
+			r.logger.Errorf("Scan FindAll error: %v", err)
 
 			return nil, err
 		}

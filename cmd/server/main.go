@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/ilfey/devback/internal/app/config"
 	"github.com/ilfey/devback/internal/app/server"
 	"github.com/ilfey/devback/internal/pkg/psql"
@@ -15,6 +16,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+	"github.com/ttys3/rotatefilehook"
 )
 
 var (
@@ -65,6 +67,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	gin.SetMode("release")
 
 	serv := server.NewServer(conf, log, store)
 
@@ -134,6 +138,32 @@ func createLogger(level string) (*logrus.Logger, error) {
 	}
 
 	logger.SetLevel(lvl)
+
+	logger.SetFormatter(&logrus.TextFormatter{
+		ForceColors:     true,
+		ForceQuote:      true,
+		FullTimestamp:   true,
+		TimestampFormat: time.RFC822,
+	})
+
+	rotateFileHook, err := rotatefilehook.NewRotateFileHook(rotatefilehook.RotateFileConfig{
+		Filename:   "logs/file.log",
+		MaxSize:    50, // Mb
+		MaxBackups: 3,
+		MaxAge:     7, // Days
+		Level:      lvl,
+		Formatter: &logrus.TextFormatter{
+
+			FullTimestamp:   true,
+			TimestampFormat: time.RFC822,
+		},
+	})
+
+	if err != nil {
+		logrus.Fatalf("Failed to initialize file rotate hook: %v", err)
+	}
+
+	logger.AddHook(rotateFileHook)
 
 	return logger, nil
 }

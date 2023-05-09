@@ -36,11 +36,11 @@ func Ping(c *config.Config, jwt iservices.JWT) gin.HandlerFunc {
 		}
 
 		ctx.JSON(http.StatusOK, gin.H{
-			"code":     code,
-			"message":  message,
-			"username": username,
-			"start_time":   c.StartTime,
-			"uptime":   uptime,
+			"code":       code,
+			"message":    message,
+			"username":   username,
+			"start_time": c.StartTime,
+			"uptime":     uptime,
 		})
 	}
 }

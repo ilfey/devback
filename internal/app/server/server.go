@@ -77,6 +77,7 @@ func (s *Server) Build() {
 }
 
 func (s *Server) Run() error {
+	s.Logger.Info("Server is live!")
 	return s.Router.Run(s.Config.Addr)
 }
 

@@ -23,5 +23,19 @@ func NewStore(db *pgx.Conn, logger *logrus.Logger) *store.Store {
 		}),
 	}
 
+	s.Link = &linkRepository{
+		db: db,
+		logger: logger.WithFields(logrus.Fields{
+			"repository": "link",
+		}),
+	}
+
+	s.Contact = &contactRepository{
+		db: db,
+		logger: logger.WithFields(logrus.Fields{
+			"repository": "contact",
+		}),
+	}
+
 	return s
 }

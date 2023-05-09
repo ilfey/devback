@@ -57,6 +57,18 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 		},
 		{
 			role:     GUEST,
+			method:   get,
+			path:     "/contacts",
+			endpoint: v1.GetContacts(s.Store),
+		},
+		{
+			role:     GUEST,
+			method:   get,
+			path:     "/contacts/:id",
+			endpoint: v1.GetContact(s.Store),
+		},
+		{
+			role:     GUEST,
 			method:   post,
 			path:     "/user/login",
 			endpoint: userV1.Login(s.Store, s.Services.JWT),
@@ -67,6 +79,9 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 			path:     "/user/register",
 			endpoint: userV1.Register(s.Store),
 		},
+
+		// USER
+
 		{
 			role:     USER,
 			method:   post,
@@ -91,47 +106,92 @@ func (s *Server) getApiRoutesV1() (routes []ServerRoute) {
 			path:     "/message/:id",
 			endpoint: userV1.EditMessage(s.Store, s.Services.JWT),
 		},
+
+		// ADMIN
+
 		{
 			role:     ADMIN,
 			method:   delete,
-			path:     "/user/message/:id",
+			path:     "/users/messages/:id",
 			endpoint: adminV1.DeleteMessage(s.Store),
 		},
 		{
 			role:     ADMIN,
 			method:   delete,
-			path:     "/user/message/:id/permanently",
+			path:     "/users/messages/:id/permanently",
 			endpoint: adminV1.DeleteMessagePermanently(s.Store),
 		},
 		{
 			role:     ADMIN,
 			method:   patch,
-			path:     "/user/message/:id",
+			path:     "/users/messages/:id",
 			endpoint: adminV1.EditMessage(s.Store),
 		},
 		{
 			role:     ADMIN,
 			method:   post,
-			path:     "/user/message/:id/restore",
+			path:     "/users/messages/:id/restore",
 			endpoint: adminV1.RestoreMessage(s.Store),
 		},
 		{
 			role:     ADMIN,
 			method:   delete,
-			path:     "/user/:username",
+			path:     "/users/:username",
 			endpoint: adminV1.DeleteAccount(s.Store),
 		},
 		{
 			role:     ADMIN,
 			method:   delete,
-			path:     "/user/:username/permanently",
+			path:     "/users/:username/permanently",
 			endpoint: adminV1.DeleteAccountPermanently(s.Store),
 		},
 		{
 			role:     ADMIN,
 			method:   post,
-			path:     "/user/:username/restore",
+			path:     "/users/:username/restore",
 			endpoint: adminV1.RestoreAccount(s.Store),
+		},
+		{
+			role:     ADMIN,
+			method:   post,
+			path:     "/links",
+			endpoint: adminV1.CreateLink(s.Store),
+		},
+		{
+			role:     ADMIN,
+			method:   get,
+			path:     "/links",
+			endpoint: adminV1.GetLinks(s.Store),
+		},
+		{
+			role:     ADMIN,
+			method:   get,
+			path:     "/links/:id",
+			endpoint: adminV1.GetLink(s.Store),
+		},
+		{
+			role:     ADMIN,
+			method:   delete,
+			path:     "/links/:id",
+			endpoint: adminV1.DeleteLink(s.Store),
+		},
+		{
+			role:     ADMIN,
+			method:   delete,
+			path:     "/links/:id/permanently",
+			endpoint: adminV1.DeleteLinkPermanently(s.Store),
+		},
+		{
+			role:     ADMIN,
+			method:   post,
+			path:     "/links/:id/restore",
+			endpoint: adminV1.RestoreLink(s.Store),
+		},
+		{
+			role:     ADMIN,
+			method:   post,
+			path:     "/contacts",
+			endpoint: adminV1.CreateContact(s.Store),
 		},
 	}
 
