@@ -1,4 +1,4 @@
-name: Build
+name: Test
 
 on:
   push:
@@ -17,6 +17,12 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version: 1.19
+    
+    - name: Set up Task
+      run: go install github.com/go-task/task/v3/cmd/task@latest
 
     - name: Build Server
-      run: go build -v ./cmd/server
+      run: task build
+
+    - name: Test Server
+      run: task test

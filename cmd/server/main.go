@@ -3,9 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,6 +10,7 @@ import (
 	"github.com/ilfey/devback/internal/app/server"
 	"github.com/ilfey/devback/internal/pkg/psql"
 	"github.com/ilfey/devback/internal/pkg/store"
+	"github.com/ilfey/devback/internal/pkg/utils"
 	"github.com/jackc/pgx/v5"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -35,16 +33,16 @@ var (
 func main() {
 	godotenv.Load()
 
-	flag.StringVar(&logLevel, "ll", getEnv("LOGLEVEL", "info"), "LogLevel")
-	flag.StringVar(&databaseUrl, "du", getEnv("DATABASE_URL", "postgresql://ilfey:QWEasd123@localhost:5432/devpage"), "PostgreSQL database url")
-	flag.StringVar(&schemePath, "df", getEnv("DATABASE_SCHEME", "./scheme.sql"), "Scheme database file")
-	flag.StringVar(&address, "a", getEnv("ADDRESS", "0.0.0.0"), "Address")
-	flag.StringVar(&port, "p", getEnv("PORT", "8080"), "Port")
-	flag.StringVar(&apiPath, "api", getEnv("API_PATH", "/api"), "Api path")
-	flag.StringVar(&adminPath, "ap", getEnv("ADMIN_PATH", "/admin"), "Admin path")
-	flag.StringVar(&adminUsername, "au", getEnv("ADMIN_USERNAME", "admin"), "Admin username")
-	flag.StringVar(&key, "jk", getEnv("JWT_KEY", "secret"), "JWT key")
-	flag.IntVar(&lifeSpan, "jls", getEnvInt("JWT_LIFE_SPAN", 24), "JWT life span (in hours)")
+	flag.StringVar(&logLevel, "ll", utils.GetEnv("LOGLEVEL", "info"), "LogLevel")
+	flag.StringVar(&databaseUrl, "du", utils.GetEnv("DATABASE_URL", "postgresql://ilfey:QWEasd123@localhost:5432/devpage"), "PostgreSQL database url")
+	flag.StringVar(&schemePath, "df", utils.GetEnv("DATABASE_SCHEME", "./scheme.sql"), "Scheme database file")
+	flag.StringVar(&address, "a", utils.GetEnv("ADDRESS", "0.0.0.0"), "Address")
+	flag.StringVar(&port, "p", utils.GetEnv("PORT", "8080"), "Port")
+	flag.StringVar(&apiPath, "api", utils.GetEnv("API_PATH", "/api"), "Api path")
+	flag.StringVar(&adminPath, "ap", utils.GetEnv("ADMIN_PATH", "/admin"), "Admin path")
+	flag.StringVar(&adminUsername, "au", utils.GetEnv("ADMIN_USERNAME", "admin"), "Admin username")
+	flag.StringVar(&key, "jk", utils.GetEnv("JWT_KEY", "secret"), "JWT key")
+	flag.IntVar(&lifeSpan, "jls", utils.GetEnvInt("JWT_LIFE_SPAN", 24), "JWT life span (in hours)")
 
 	flag.Parse()
 
@@ -78,22 +76,13 @@ func main() {
 	}
 }
 
-func readScheme(path string) (string, error) {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		return "", err
-	}
-
-	return string(content), nil
-}
-
 func initPostgres(logger *logrus.Logger, databaseUrl, schemePath string) (*store.Store, error) {
 	db, err := pgx.Connect(context.Background(), databaseUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	scheme, err := readScheme(schemePath)
+	scheme, err := utils.ReadScheme(schemePath)
 	if err != nil {
 		return nil, err
 	}
@@ -106,27 +95,6 @@ func initPostgres(logger *logrus.Logger, databaseUrl, schemePath string) (*store
 	store := psql.NewStore(db, logger)
 
 	return store, nil
-}
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-
-	return fallback
-}
-
-func getEnvInt(key string, fallback int) int {
-	if s, ok := os.LookupEnv(key); ok {
-		value, err := strconv.Atoi(s)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		return value
-	}
-
-	return fallback
 }
 
 func createLogger(level string) (*logrus.Logger, error) {
