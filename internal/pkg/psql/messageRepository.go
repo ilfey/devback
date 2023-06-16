@@ -112,7 +112,7 @@ func (r *messageRepository) DeleteWithUsername(ctx context.Context, id uint, use
 }
 
 func (r *messageRepository) Delete(ctx context.Context, id uint) error {
-	q := "UPDATE messages SET is_delete = true WHERE id = $1;"
+	q := "UPDATE messages SET is_deleted = true WHERE id = $1;"
 
 	r.logger.Tracef("SQL Query: %s", q)
 
@@ -142,7 +142,7 @@ func (r *messageRepository) DeletePermanently(ctx context.Context, id uint) erro
 }
 
 func (r *messageRepository) Restore(ctx context.Context, id uint) error {
-	q := "UPDATE messages SET is_delete = false WHERE id = $1;"
+	q := "UPDATE messages SET is_deleted = false WHERE id = $1;"
 
 	r.logger.Tracef("SQL Query: %s", q)
 
