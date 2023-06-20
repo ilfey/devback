@@ -10,7 +10,8 @@ import (
 func TestUser_Create(t *testing.T) {
 	u := models.TestUser(t)
 
-	err := Store.User.Create(bgCtx(), u)
+	// create user
+	_, err := Store.User.Create(bgCtx(), u)
 
 	assert.NoError(t, err)
 }
@@ -18,31 +19,37 @@ func TestUser_Create(t *testing.T) {
 func TestUser_Find(t *testing.T) {
 	u := models.TestUser(t)
 
-	f, err := Store.User.Find(bgCtx(), u.Username)
+	// find user
+	user, err := Store.User.Find(bgCtx(), u.Username)
 	assert.NoError(t, err)
-	assert.NotNil(t, f)
+	assert.NotNil(t, user)
 
-	assert.True(t, u.Username == f.Username)
-	assert.True(t, f.ComparePassword(u.Password))
+	// comparing attrs
+	assert.True(t, u.Username == user.Username)
+	assert.True(t, user.ComparePassword(u.Password))
 }
 
 func TestUser_ResetPassword(t *testing.T) {
 	u := models.TestUser(t)
 	u.Password = "Pa$$w0rd"
 
-	err := Store.User.ResetPassword(bgCtx(), u)
+	// reset user password
+	_, err := Store.User.ResetPassword(bgCtx(), u)
 	assert.NoError(t, err)
 
+	// find user
 	f, err := Store.User.Find(bgCtx(), u.Username)
 	assert.NoError(t, err)
 	assert.NotNil(t, f)
 
+	// comparing password
 	assert.True(t, f.ComparePassword(u.Password))
 }
 
 func TestUser_Delete(t *testing.T) {
 	u := models.TestUser(t)
 
+	// delete user
 	err := Store.User.Delete(bgCtx(), u.Username)
 
 	assert.NoError(t, err)
@@ -51,17 +58,22 @@ func TestUser_Delete(t *testing.T) {
 func TestUser_Restore(t *testing.T) {
 	u := models.TestUser(t)
 
-	err := Store.User.Restore(bgCtx(), u.Username)
+	// restore user
+	user, err := Store.User.Restore(bgCtx(), u.Username)
 
 	assert.NoError(t, err)
+
+	assert.True(t, user.Username == u.Username)
 }
 
 func TestUser_DeletePermanently(t *testing.T) {
 	u := models.TestUser(t)
 
+	// delete permanently user
 	err := Store.User.DeletePermanently(bgCtx(), u.Username)
 	assert.NoError(t, err)
 
+	// find deleted user
 	_, err = Store.User.Find(bgCtx(), u.Username)
 	assert.Error(t, err)
 }

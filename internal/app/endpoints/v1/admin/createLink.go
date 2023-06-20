@@ -20,16 +20,23 @@ func CreateLink(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		if err := s.Link.Create(ctx.Request.Context(), body); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error":   "create link error",
-				"message": "link not created",
-			})
+		link, err := s.Link.Create(ctx.Request.Context(), body)
+		if err != nil {
+			switch err.Type() {
+			case store.StoreAlreadyExists:
+				ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
+					"error":   "create link error",
+					"message": "link already created",
+				})
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "create link error",
+					"message": "link not created",
+				})
+			}
 			return
 		}
 
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"message": "success",
-		})
+		ctx.AbortWithStatusJSON(http.StatusOK, link)
 	}
 }

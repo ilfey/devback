@@ -1,4 +1,4 @@
-package user
+package users
 
 import (
 	"net/http"
@@ -32,7 +32,7 @@ func CreateMessage(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 
 		body.Username = username
 
-		err = s.Message.Create(ctx.Request.Context(), body)
+		msg, err := s.Message.Create(ctx.Request.Context(), body)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"error":   "create message error",
@@ -41,8 +41,6 @@ func CreateMessage(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 			return
 		}
 
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"message": "success",
-		})
+		ctx.AbortWithStatusJSON(http.StatusOK, msg)
 	}
 }

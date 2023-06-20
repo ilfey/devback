@@ -1,4 +1,4 @@
-package user
+package users
 
 import (
 	"net/http"
@@ -6,8 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/ilfey/devback/internal/pkg/models"
 	"github.com/ilfey/devback/internal/pkg/store"
-	"github.com/jackc/pgerrcode"
-	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func Register(s *store.Store) gin.HandlerFunc {
@@ -22,16 +20,18 @@ func Register(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		if err := s.User.Create(ctx.Request.Context(), body); err != nil {
-			if pgErr, ok := err.(*pgconn.PgError); ok {
-				if pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
-					ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
-						"error":   "user create error",
-						"message": "user already exists",
-					})
-					return
-				}
+		user, err := s.User.Create(ctx.Request.Context(), body)
+
+		if err != nil {
+			switch err.Type() {
+			case store.StoreAlreadyExists:
 				ctx.AbortWithStatusJSON(http.StatusConflict, gin.H{
+					"error":   "user create error",
+					"message": "user already exists",
+				})
+
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 					"error":   "user create error",
 					"message": "user not created",
 				})
@@ -40,7 +40,8 @@ func Register(s *store.Store) gin.HandlerFunc {
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
-			"message": "success",
+			"username":   user.Username,
+			"created_at": user.CreatedAt,
 		})
 	}
 }

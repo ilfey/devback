@@ -21,15 +21,22 @@ func GetContact(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		link, err := s.Contact.Find(ctx.Request.Context(), uint(id))
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"error":   "contact read error",
-				"message": "contact not found",
-			})
+		contact, _err := s.Contact.Find(ctx.Request.Context(), uint(id))
+		if _err != nil {
+			switch _err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "internal server error",
+					"message": "contact read error",
+				})
+
+			case store.StoreNotFound:
+				ctx.JSON(http.StatusNotFound, gin.H{})
+			}
+
 			return
 		}
 
-		ctx.JSON(http.StatusOK, link)
+		ctx.JSON(http.StatusOK, contact)
 	}
 }

@@ -11,11 +11,11 @@
 - `/api/v1/messages` GET
 - `/api/v1/contacts` GET
 - `/api/v1/contacts/:id` GET
-- `/api/v1/user/login` POST
-- `/api/v1/user/register` POST
-- `/api/v1/user/delete` POST
-- `/api/v1/user/message` POST
-- `/api/v1/user/message/:id` PATCH, DELETE
+- `/api/v1/users/login` POST
+- `/api/v1/users/register` POST
+- `/api/v1/users/delete` POST
+- `/api/v1/users/message` POST
+- `/api/v1/users/message/:id` PATCH, DELETE
 - `/api/v1/<admin path>/users/messages/:id` PATCH, DELETE
 - `/api/v1/<admin path>/users/messages/:id/permanently` DELETE
 - `/api/v1/<admin path>/users/messages/:id/restore` POST

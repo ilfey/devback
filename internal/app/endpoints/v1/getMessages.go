@@ -7,14 +7,19 @@ import (
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
-func ReadMessages(s *store.Store) gin.HandlerFunc {
+func GetMessages(s *store.Store) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		msgs, err := s.Message.FindAll(ctx.Request.Context())
+		// TODO: add query param
+		msgs, err := s.Message.FindAll(ctx.Request.Context(), false)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"error":   "messages read error",
-				"message": "messages not found",
-			})
+			switch err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "internal server error",
+					"message": "messages read error",
+				})
+			}
+
 			return
 		}
 

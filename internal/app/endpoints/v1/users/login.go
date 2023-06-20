@@ -1,4 +1,4 @@
-package user
+package users
 
 import (
 	"net/http"
@@ -41,7 +41,9 @@ func Login(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 		token := jwt.GenerateToken(user.Username)
 
 		ctx.JSON(http.StatusOK, gin.H{
-			"token": token,
+			"username":   user.Username,
+			"created_at": user.CreatedAt,
+			"token":      token,
 		})
 	}
 }

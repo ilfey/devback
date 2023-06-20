@@ -21,7 +21,8 @@ func RestoreMessage(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		if err := s.Message.Restore(ctx.Request.Context(), uint(id)); err != nil {
+		msg, err := s.Message.Restore(ctx.Request.Context(), uint(id))
+		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error":   "message restore error",
 				"message": err.Error(),
@@ -29,8 +30,6 @@ func RestoreMessage(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "success",
-		})
+		ctx.JSON(http.StatusOK, msg)
 	}
 }

@@ -23,7 +23,16 @@ func CreateContact(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		if err := s.Contact.Create(ctx.Request.Context(), body.Title, body.LinkId); err != nil {
+		contact, err := s.Contact.Create(ctx.Request.Context(), body.Title, body.LinkId)
+		if err != nil {
+			if err.Type() == store.StoreUnknown {
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "create contact error",
+					"message": "contact not created",
+				})
+				return
+			}
+
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"error":   "create contact error",
 				"message": "contact not created",
@@ -31,8 +40,6 @@ func CreateContact(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"message": "success",
-		})
+		ctx.AbortWithStatusJSON(http.StatusOK, contact)
 	}
 }

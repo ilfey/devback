@@ -18,15 +18,23 @@ func GetLink(s *store.Store) gin.HandlerFunc {
 				"error":   "error parse id",
 				"message": err.Error(),
 			})
+
 			return
 		}
 
-		link, err := s.Link.Find(ctx.Request.Context(), uint(id))
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"error":   "links read error",
-				"message": "links not found",
-			})
+		link, _err := s.Link.Find(ctx.Request.Context(), uint(id))
+		if _err != nil {
+			switch _err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "internal server error",
+					"message": "links read error",
+				})
+
+			case store.StoreNotFound:
+				ctx.JSON(http.StatusNotFound, gin.H{})
+			}
+
 			return
 		}
 

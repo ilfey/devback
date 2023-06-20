@@ -12,10 +12,14 @@ func GetContacts(s *store.Store) gin.HandlerFunc {
 
 		links, err := s.Contact.FindAll(ctx.Request.Context())
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"error":   "contacts read error",
-				"message": "contacts not found",
-			})
+			switch err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "internal server error",
+					"message": "contacts read error",
+				})
+			}
+
 			return
 		}
 

@@ -22,10 +22,13 @@ func DeleteLink(s *store.Store) gin.HandlerFunc {
 		}
 
 		if err := s.Link.Delete(ctx.Request.Context(), uint(id)); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error":   "link delete error",
-				"message": "link not deleted",
-			})
+			switch err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "link delete error",
+					"message": "link not deleted",
+				})
+			}
 			return
 		}
 

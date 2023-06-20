@@ -14,43 +14,44 @@ type Store struct {
 }
 
 type UserRepository interface {
-	Create(context.Context, *models.User) error
-	Find(context.Context, string) (*models.User, error)
-	ResetPassword(context.Context, *models.User) error
-	Delete(context.Context, string) error
-	DeletePermanently(context.Context, string) error
-	Restore(context.Context, string) error
+	Create(ctx context.Context, user *models.User) (*models.User, StoreError)
+	Find(ctx context.Context, username string) (*models.User, StoreError)
+	ResetPassword(ctx context.Context, user *models.User) (*models.User, StoreError)
+	Delete(ctx context.Context, username string) StoreError
+	DeletePermanently(ctx context.Context, username string) StoreError
+	Restore(ctx context.Context, username string) (*models.User, StoreError)
 }
 
 type MessageRepository interface {
-	Create(context.Context, *models.Message) error
-	FindAll(context.Context) ([]*models.Message, error)
-	EditWithUsername(context.Context, string, uint, string) error
-	Edit(context.Context, string, uint) error
-	DeleteWithUsername(context.Context, uint, string) error
-	Delete(context.Context, uint) error
-	DeletePermanently(context.Context, uint) error
-	Restore(context.Context, uint) error
+	Create(ctx context.Context, message *models.Message) (*models.Message, StoreError)
+	Find(ctx context.Context, id uint) (*models.Message, StoreError)
+	FindAll(ctx context.Context, isIncludeDeleted bool) ([]*models.Message, StoreError)
+	EditWithUsername(ctx context.Context, newContent string, id uint, username string) (*models.Message, StoreError)
+	Edit(ctx context.Context, newContent string, id uint) (*models.Message, StoreError)
+	DeleteWithUsername(ctx context.Context, id uint, username string) StoreError
+	Delete(ctx context.Context, id uint) StoreError
+	DeletePermanently(ctx context.Context, id uint) StoreError
+	Restore(ctx context.Context, id uint) (*models.Message, StoreError)
 }
 
 type LinkRepository interface {
-	Create(context.Context, *models.Link) error
-	Find(context.Context, uint) (*models.Link, error)
-	FindAll(context.Context, bool) ([]*models.Link, error)
-	Delete(context.Context, uint) error
-	DeletePermanently(context.Context, uint) error
-	Edit(context.Context, string, string, uint) error
-	EditUrl(context.Context, string, uint) error
-	EditDescription(context.Context, string, uint) error
-	Restore(context.Context, uint) error
+	Create(ctx context.Context, link *models.Link) (*models.Link, StoreError)
+	Find(ctx context.Context, id uint) (*models.Link, StoreError)
+	FindAll(ctx context.Context, isIncludeDeleted bool) ([]*models.Link, StoreError)
+	Delete(ctx context.Context, id uint) StoreError
+	DeletePermanently(ctx context.Context, id uint) StoreError
+	Edit(ctx context.Context, newUrl string, newDescription string, id uint) (*models.Link, StoreError)
+	EditUrl(ctx context.Context, newUrl string, id uint) (*models.Link, StoreError)
+	EditDescription(ctx context.Context, newDescription string, id uint) (*models.Link, StoreError)
+	Restore(ctx context.Context, id uint) (*models.Link, StoreError)
 }
 
 type ContactRepository interface {
-	Create(context.Context, string, uint) error
-	Find(context.Context, uint) (*models.Contact, error)
-	FindAll(context.Context) ([]*models.Contact, error)
-	Delete(ctx context.Context, id uint) error
-	DeletePermanently(ctx context.Context, id uint) error
+	Create(ctx context.Context, title string, linkId uint) (*models.Contact, StoreError)
+	Find(ctx context.Context, id uint) (*models.Contact, StoreError)
+	FindAll(ctx context.Context) ([]*models.Contact, StoreError)
+	Delete(ctx context.Context, id uint) StoreError
+	DeletePermanently(ctx context.Context, id uint) StoreError
 	// Edit(context.Context, string, string, uint) error // TODO add meth
 	// EditTitle(context.Context, string, uint) error // TODO add meth
 	// EditLinkId(context.Context, string, uint) error // TODO add meth

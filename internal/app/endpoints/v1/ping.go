@@ -14,7 +14,7 @@ func Ping(c *config.Config, jwt iservices.JWT) gin.HandlerFunc {
 
 		var username, message string
 
-		code := 200
+		code := http.StatusOK
 		token := jwt.GetToken(ctx)
 		uptime := time.Since(c.StartTime)
 

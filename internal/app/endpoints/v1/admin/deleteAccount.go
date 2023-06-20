@@ -12,10 +12,13 @@ func DeleteAccount(s *store.Store) gin.HandlerFunc {
 		username := ctx.Param("username")
 
 		if err := s.User.Delete(ctx.Request.Context(), username); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error":   "account delete error",
-				"message": "account not deleted",
-			})
+			switch err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "account delete error",
+					"message": "account not deleted",
+				})
+			}
 			return
 		}
 

@@ -22,10 +22,13 @@ func DeleteMessage(s *store.Store) gin.HandlerFunc {
 		}
 
 		if err := s.Message.Delete(ctx.Request.Context(), uint(id)); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error":   "message deletion error",
-				"message": err.Error(),
-			})
+			switch err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "message deletion error",
+					"message": "message not deleted",
+				})
+			}
 			return
 		}
 

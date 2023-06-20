@@ -1,4 +1,4 @@
-package user
+package users
 
 import (
 	"net/http"
@@ -44,7 +44,8 @@ func EditMessage(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 			return
 		}
 
-		if err := s.Message.EditWithUsername(ctx.Request.Context(), body.Content, uint(id), username); err != nil {
+		msg, err := s.Message.EditWithUsername(ctx.Request.Context(), body.Content, uint(id), username)
+		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error":   "edit message error",
 				"message": "message not edited",
@@ -52,8 +53,6 @@ func EditMessage(s *store.Store, jwt iservices.JWT) gin.HandlerFunc {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "success",
-		})
+		ctx.JSON(http.StatusOK, msg)
 	}
 }

@@ -8,22 +8,18 @@ import (
 )
 
 func GetLinks(s *store.Store) gin.HandlerFunc {
-	type request struct {
-		IsDeleted bool `json:"is_deleted"`
-	}
 	return func(ctx *gin.Context) {
-		body := new(request)
 
-		if err := ctx.ShouldBindJSON(body); err != nil {
-			body.IsDeleted = false
-		}
-
-		links, err := s.Link.FindAll(ctx.Request.Context(), body.IsDeleted)
+		links, err := s.Link.FindAll(ctx.Request.Context(), false) // TODO: add query param
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusNotFound, gin.H{
-				"error":   "links read error",
-				"message": "links not found",
-			})
+			switch err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "internal server error",
+					"message": "links read error",
+				})
+			}
+
 			return
 		}
 

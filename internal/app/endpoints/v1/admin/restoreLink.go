@@ -21,16 +21,18 @@ func RestoreLink(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		if err := s.Link.Restore(ctx.Request.Context(), uint(id)); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error":   "link restore error",
-				"message": "link not restored",
-			})
+		link, _err := s.Link.Restore(ctx.Request.Context(), uint(id))
+		if _err != nil {
+			switch _err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "internal server error",
+					"message": "link restore error",
+				})
+			}
 			return
 		}
 
-		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
-			"message": "success",
-		})
+		ctx.AbortWithStatusJSON(http.StatusOK, link)
 	}
 }

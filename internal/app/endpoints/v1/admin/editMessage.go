@@ -34,16 +34,18 @@ func EditMessage(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		if err := s.Message.Edit(ctx.Request.Context(), body.Content, uint(id)); err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error":   "edit message error",
-				"message": err.Error(),
-			})
+		msg, _err := s.Message.Edit(ctx.Request.Context(), body.Content, uint(id))
+		if _err != nil {
+			switch _err.Type() {
+			case store.StoreUnknown:
+				ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+					"error":   "edit message error",
+					"message": "message not edited",
+				})
+			}
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "success",
-		})
+		ctx.JSON(http.StatusOK, msg)
 	}
 }

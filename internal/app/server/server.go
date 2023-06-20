@@ -81,7 +81,7 @@ func (s *Server) Run() error {
 	return s.Router.Run(s.Config.Addr)
 }
 
-func (s *Server) HandleApiRoutes(fn func() []ServerRoute, v string) {
+func (s *Server) HandleApiRoutes(fn func() []*ServerRoute, v string) {
 	routes := fn()
 	for _, route := range routes {
 
@@ -90,7 +90,7 @@ func (s *Server) HandleApiRoutes(fn func() []ServerRoute, v string) {
 			route.path = "/" + v + s.Config.AdminPath + route.path
 			s.groups.admin.Handle(route.method, route.path, route.endpoint)
 		case USER:
-			route.path = "/" + v + "/user" + route.path
+			route.path = "/" + v + "/users" + route.path
 			s.groups.user.Handle(route.method, route.path, route.endpoint)
 		default:
 			route.path = "/" + v + route.path
@@ -103,17 +103,5 @@ func (s *Server) HandleApiRoutes(fn func() []ServerRoute, v string) {
 		})
 
 		routeLogger.Info()
-	}
-}
-
-// TODO: not used
-func (s *Server) HandleApiRoute(r ServerRoute) gin.IRoutes {
-	switch r.role {
-	case ADMIN:
-		return s.groups.admin.Handle(r.method, s.Config.AdminPath+r.path, r.endpoint)
-	case USER:
-		return s.groups.user.Handle(r.method, r.path, r.endpoint)
-	default:
-		return s.groups.api.Handle(r.method, r.path, r.endpoint)
 	}
 }

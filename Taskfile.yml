@@ -10,7 +10,9 @@ vars:
 tasks:
 
   default:
-    - task: dev
+    deps: [build]
+    cmds:
+      - ./{{.EXE}}
 
   dev:
     desc: Live restart server
@@ -30,6 +32,12 @@ tasks:
     deps: [format]
     cmds:
       - go build -v ./cmd/server
+    sources:
+      - ./**/*.go
+      - ./**/*.tpl
+      - ./**/*.tmpl
+      - ./**/*.html
+      - ./**/*.env
 
   format:
     desc: Format sources
@@ -43,6 +51,7 @@ tasks:
   test:
     desc: Runs test server
     cmds:
+      - go clean -testcache
       - go test {{catLines .PACKAGES}}
     vars:
       PACKAGES:
