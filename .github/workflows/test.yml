@@ -8,12 +8,18 @@ on:
     branches: [ "master" ]
 
 env:
-  TEST_DATABASE_URL: ${{secrets.TEST_DATABASE_URL}}
+  POSTGRES_USER: root
+  POSTGRES_PASSWORD: QWEasd123
+  POSTGRES_DB: devback
+  TEST_DATABASE_URL: "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@192.168.141.132:5432/$POSTGRES_DB"
+  
 
 jobs:
 
-  test:
+  build:
+    name: Build
     runs-on: ubuntu-latest
+    
     steps:
     - uses: actions/checkout@v3
 
@@ -28,6 +34,27 @@ jobs:
     - name: Build Server
       run: task build
 
+#     - name: Test Server
+#       run: task test
+      
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
     - name: Test Server
       run: task test
+    
       
