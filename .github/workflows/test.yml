@@ -16,30 +16,8 @@ env:
 
 jobs:
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
-    
-    - name: Set up Task
-      run: go install github.com/go-task/task/v3/cmd/task@latest
-
-    - name: Build Server
-      run: task build
-
-#     - name: Test Server
-#       run: task test
-      
   test:
     name: Test
-    needs: build
     runs-on: ubuntu-latest
     
     services:
@@ -56,14 +34,26 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
+    
     steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+    
     - name: Set up Task
       run: go install github.com/go-task/task/v3/cmd/task@latest
-    
+
+    - name: Build Server
+      run: task build
+
     - name: Test Server
       env: 
         TEST_DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
       run: task test
+    
+    
     
       
