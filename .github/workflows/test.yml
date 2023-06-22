@@ -56,7 +56,7 @@ jobs:
       run: task test
     
     - name: Deploy server
-      run: curl ${{ env.DEPLOY_URL }}
+      run: curl $DEPLOY_URL
     
     
     
