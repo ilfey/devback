@@ -10,13 +10,13 @@ vars:
 tasks:
 
   default:
-    deps: [build]
+    deps: [build:current]
     cmds:
       - ./{{.EXE}}
 
   dev:
     desc: Live restart server
-    deps: [build]
+    deps: [build:current]
     cmds:
       - go build -v ./cmd/server
       - ./{{.EXE}}
@@ -28,7 +28,11 @@ tasks:
       - ./**/*.env
 
   build:
-    desc: Build server
+    desc: Build server for windows and linux
+    deps: [build:windows, build:linux]
+
+  build:current:
+    desc: Build server for current os
     deps: [format]
     cmds:
       - go build -v ./cmd/server
@@ -38,6 +42,22 @@ tasks:
       - ./**/*.tmpl
       - ./**/*.html
       - ./**/*.env
+  
+  build:windows:
+    desc: Build server for windows
+    env:
+      GOOS: windows
+      GOARCH: amd64
+    cmds: 
+      - go build -v ./cmd/server
+  
+  build:linux:
+    desc: Build server for windows
+    env:
+      GOOS: linux
+      GOARCH: amd64
+    cmds: 
+      - go build -v ./cmd/server
 
   format:
     desc: Format sources
