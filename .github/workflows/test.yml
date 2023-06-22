@@ -55,9 +55,7 @@ jobs:
       run: task test
     
     - name: Deploy server
-      env:
-        DEPLOY_URL: ${{ secrets.DEPLOY_HOOK_URL }}
-      run: curl "$DEPLOY_URL"
+      run: curl "${{ secrets.DEPLOY_HOOK_URL }}"
     
     
     
