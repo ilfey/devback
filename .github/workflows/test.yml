@@ -58,7 +58,12 @@ jobs:
           --health-retries 5
 
     steps:
+    - name: Set up Task
+      run: go install github.com/go-task/task/v3/cmd/task@latest
+    
     - name: Test Server
+      env: 
+        TEST_DATABASE_URL: ${{ TEST_DATABASE_URL }}
       run: task test
     
       
