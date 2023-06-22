@@ -57,6 +57,10 @@ jobs:
     - name: Deploy server
       run: curl https://api.render.com/deploy/srv-ch1v6p3h4hsum444u9c0?key=VQ9-7wfS2y0
     
-    
+    - name: Archive results
+      uses: actions/upload-artifact@v3
+      with:
+        name: server
+        path: ${{ github.workspace }}
     
       
