@@ -40,7 +40,7 @@ func Ping(c *config.Config, jwt iservices.JWT) gin.HandlerFunc {
 			"message":    message,
 			"username":   username,
 			"start_time": c.StartTime,
-			"uptime":     uptime,
+			"uptime":     uptime.String(),
 		})
 	}
 }
