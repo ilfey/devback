@@ -8,12 +8,33 @@ on:
     branches: [ "master" ]
 
 env:
-  TEST_DATABASE_URL: ${{secrets.TEST_DATABASE_URL}}
+  POSTGRES_USER: root
+  POSTGRES_PASSWORD: QWEasd123
+  POSTGRES_DB: devback
+  TEST_DATABASE_URL: postgresql://root:QWEasd123@127.0.0.1:5432/devback
+  
 
 jobs:
 
   test:
+    name: Test
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
     steps:
     - uses: actions/checkout@v3
 
@@ -29,5 +50,17 @@ jobs:
       run: task build
 
     - name: Test Server
+      env: 
+        TEST_DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
       run: task test
+    
+    - name: Deploy server
+      run: curl https://api.render.com/deploy/srv-ch1v6p3h4hsum444u9c0?key=VQ9-7wfS2y0
+    
+    - name: Archive results
+      uses: actions/upload-artifact@v3
+      with:
+        name: server
+        path: ${{ github.workspace }}
+    
       
