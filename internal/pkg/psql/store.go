@@ -2,11 +2,11 @@ package psql
 
 import (
 	"github.com/ilfey/devback/internal/pkg/store"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/sirupsen/logrus"
 )
 
-func NewStore(db *pgx.Conn, logger *logrus.Logger) *store.Store {
+func NewStore(db *pgxpool.Pool, logger *logrus.Logger) *store.Store {
 	s := new(store.Store)
 
 	s.User = &userRepository{

@@ -11,7 +11,7 @@ import (
 	"github.com/ilfey/devback/internal/pkg/psql"
 	"github.com/ilfey/devback/internal/pkg/store"
 	"github.com/ilfey/devback/internal/pkg/utils"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/ttys3/rotatefilehook"
@@ -77,7 +77,7 @@ func main() {
 }
 
 func initPostgres(logger *logrus.Logger, databaseUrl, schemePath string) (*store.Store, error) {
-	db, err := pgx.Connect(context.Background(), databaseUrl)
+	db, err := pgxpool.New(context.Background(), databaseUrl)
 	if err != nil {
 		return nil, err
 	}
