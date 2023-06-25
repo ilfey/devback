@@ -14,6 +14,16 @@ func NewStore(db *pgxpool.Pool, logger *logrus.Logger) *store.Store {
 		logger: logger.WithFields(logrus.Fields{
 			"repository": "user",
 		}),
+		generator: NewQueryGenerator(
+			"users",
+			[]string{
+				"user_id",
+				"password",
+				"is_deleted",
+				"created_at",
+				"modified_at",
+			},
+		),
 	}
 
 	s.Message = &messageRepository{
