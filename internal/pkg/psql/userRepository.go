@@ -36,12 +36,12 @@ func (r *userRepository) Create(ctx context.Context, user *models.User) (*models
 
 func (r *userRepository) Find(ctx context.Context, username string) (*models.User, store.StoreError) {
 	q := r.generator.Select(SelectConfig{
-		attrs: []string{
+		Attrs: []string{
 			"user_id",
 			"password",
 			"created_at",
 		},
-		condition: "user_id = $$ and is_deleted = false",
+		Condition: "user_id = $$ and is_deleted = false",
 	})
 	// q := "SELECT user_id, password, created_at FROM users WHERE user_id = $1 and is_deleted = false;"
 

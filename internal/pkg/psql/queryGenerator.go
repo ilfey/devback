@@ -20,77 +20,98 @@ func NewQueryGenerator(table string, attrs []string) *QueryGenerator {
 }
 
 type SelectConfig struct {
-	attrs     []string
-	joins     []join
-	condition string
-	groupBy   []string
-	having    string
-	orderBy   []order
-	firstRow  int
-	lastRow   int
+	Attrs     []string
+	Joins     []Join
+	Condition string
+	GroupBy   []string
+	Having    string
+	OrderBy   []Order
+	FirstRow  int
+	LastRow   int
 }
 
-type join struct {
-	join      string
-	table     string
-	condition string
+type Join struct {
+	Join      JoinType
+	Table     string
+	Condition string
 }
 
-type order struct {
-	attr string
-	desc bool
+type JoinType string
+
+const (
+	INNER JoinType = "INNER"
+	LEFT  JoinType = "LEFT"
+	RIGHT JoinType = "RIGHT"
+	FULL  JoinType = "FULL"
+)
+
+type Order struct {
+	Attr string
+	Desc bool
 }
 
 func (g *QueryGenerator) Select(config SelectConfig) string {
 
+	var attrs string
+	if len(config.Attrs) != 0 {
+		attrs = strings.Join(config.Attrs, ", ")
+	} else {
+		attrs = strings.Join(g.Attributes, ", ")
+	}
+
 	joins := ""
-	if len(config.joins) != 0 {
-		for _, join := range config.joins {
-			joins += fmt.Sprintf("%s %s ON %s", join.join, join.table, join.condition)
+	if len(config.Joins) != 0 {
+		for _, join := range config.Joins {
+			joins += fmt.Sprintf(" %s JOIN %s ON %s", join.Join, join.Table, join.Condition)
 		}
 	}
 
 	where := ""
-	if config.condition != "" {
-		where = fmt.Sprintf("WHERE %s", config.condition)
+	if config.Condition != "" {
+		where = fmt.Sprintf(" WHERE %s", config.Condition)
 	}
 
 	groupBy := ""
-	if len(config.groupBy) != 0 {
-		groupBy = fmt.Sprintf("GROUP BY %s", strings.Join(config.groupBy, ", "))
+	if len(config.GroupBy) != 0 {
+		groupBy = fmt.Sprintf(" GROUP BY %s", strings.Join(config.GroupBy, ", "))
+	}
+
+	having := ""
+	if config.Having != "" {
+		having = fmt.Sprintf(" HAVING %s", config.Having)
 	}
 
 	orderBy := ""
-	if len(config.orderBy) != 0 {
+	if len(config.OrderBy) != 0 {
 		var orders []string
-		for _, order := range config.orderBy {
-			sort := ""
-			if order.desc {
+		for _, order := range config.OrderBy {
+			sort := "ASC"
+			if order.Desc {
 				sort = "DESC"
 			}
 
-			orders = append(orders, fmt.Sprintf("%s %s", order.attr, sort))
+			orders = append(orders, fmt.Sprintf("%s %s", order.Attr, sort))
 		}
-		orderBy = fmt.Sprintf("ORDER BY %s", strings.Join(orders, ", "))
+		orderBy = fmt.Sprintf(" ORDER BY %s", strings.Join(orders, ", "))
 	}
 
 	limit := ""
-	if config.firstRow != 0 {
-		if config.lastRow != 0 {
-			limit = fmt.Sprintf("LIMIT %d, %d", config.firstRow, config.lastRow+1)
+	if config.FirstRow != 0 {
+		if config.LastRow != 0 {
+			limit = fmt.Sprintf(" LIMIT %d, %d", config.FirstRow, config.LastRow+1)
 		} else {
-			limit = fmt.Sprintf("LIMIT %d", config.firstRow+1)
+			limit = fmt.Sprintf(" LIMIT %d", config.FirstRow+1)
 		}
 	}
 
 	sql := fmt.Sprintf(
-		"SELECT %s FROM %s %s %s %s %s %s %s;",
-		strings.Join(config.attrs, ", "),
+		"SELECT %s FROM %s%s%s%s%s%s%s;",
+		attrs,
 		g.Table,
 		joins,
 		where,
 		groupBy,
-		config.having,
+		having,
 		orderBy,
 		limit,
 	)
