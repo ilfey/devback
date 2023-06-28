@@ -17,7 +17,6 @@ type userRepository struct {
 
 func (r *userRepository) Create(ctx context.Context, user *models.User) (*models.User, store.StoreError) {
 	q := r.generator.Insert([]string{"user_id", "password"})
-	// q := "INSERT INTO users (user_id, password) VALUES ($1, $2) RETURNING user_id, password, created_at, modified_at;"
 
 	if err := user.BeforeCreate(); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
@@ -43,7 +42,6 @@ func (r *userRepository) Find(ctx context.Context, username string) (*models.Use
 		},
 		Condition: "user_id = $$ and is_deleted = false",
 	})
-	// q := "SELECT user_id, password, created_at FROM users WHERE user_id = $1 and is_deleted = false;"
 
 	u := new(models.User)
 
@@ -58,7 +56,6 @@ func (r *userRepository) Find(ctx context.Context, username string) (*models.Use
 
 func (r *userRepository) ResetPassword(ctx context.Context, user *models.User) (*models.User, store.StoreError) {
 	q := r.generator.Update([]string{"password"}, "user_id = $$")
-	// q := "UPDATE users SET password = $1 WHERE user_id = $2 RETURNING user_id, password, created_at, modified_at;"
 
 	if err := user.BeforeCreate(); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
@@ -77,7 +74,6 @@ func (r *userRepository) ResetPassword(ctx context.Context, user *models.User) (
 
 func (r *userRepository) Delete(ctx context.Context, username string) store.StoreError {
 	q := r.generator.Update([]string{"is_deleted"}, "user_id = $$")
-	// q := "UPDATE users SET is_deleted = true WHERE user_id = $1;"
 
 	r.logger.Tracef("SQL Query: %s", q)
 
@@ -90,7 +86,6 @@ func (r *userRepository) Delete(ctx context.Context, username string) store.Stor
 
 func (r *userRepository) DeletePermanently(ctx context.Context, username string) store.StoreError {
 	q := r.generator.Delete("user_id = $$")
-	// q := "DELETE FROM users WHERE user_id = $1;"
 
 	r.logger.Tracef("SQL Query: %s", q)
 
@@ -103,7 +98,6 @@ func (r *userRepository) DeletePermanently(ctx context.Context, username string)
 
 func (r *userRepository) Restore(ctx context.Context, username string) (*models.User, store.StoreError) {
 	q := r.generator.Update([]string{"is_deleted"}, "user_id = $$")
-	// q := "UPDATE users SET is_deleted = false WHERE user_id = $1 RETURNING user_id, password, created_at, modified_at;"
 
 	u := new(models.User)
 
