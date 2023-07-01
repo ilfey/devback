@@ -106,6 +106,54 @@ func (r *messageRepository) FindAll(ctx context.Context, isIncludeDeleted bool) 
 	return msgs, nil
 }
 
+func (r *messageRepository) FindAllWithPagination(ctx context.Context, page int, limit int, isIncludeDeleted bool) ([]*models.Message, store.StoreError) {
+	config := SelectConfig{
+		Attrs: []string{
+			"message_id",
+			"fk_user_id",
+			"content",
+			"fk_reply_message_id",
+			"is_deleted",
+			"created_at",
+			"modified_at",
+		},
+		Condition: "message_id > $$ and is_deleted = false",
+		OrderBy: []Order{
+			{
+				Attr: "message_id",
+			},
+		},
+		Limit: limit,
+	}
+
+	if isIncludeDeleted {
+		config.Condition = "message_id > $$"
+	}
+
+	q := r.generator.Select(config)
+
+	r.logger.Tracef("SQL Query: %s", q)
+
+	rows, err := r.db.Query(ctx, q, page*limit)
+	if err != nil {
+		return nil, store.NewErrorAndLog(err, r.logger)
+	}
+
+	var msgs []*models.Message
+
+	for rows.Next() {
+		msg := new(models.Message)
+
+		if err := rows.Scan(&msg.Id, &msg.Username, &msg.Content, &msg.Reply, &msg.IsDeleted, &msg.CreatedAt, &msg.ModifiedAt); err != nil {
+			return nil, store.NewErrorAndLog(err, r.logger)
+		}
+
+		msgs = append(msgs, msg)
+	}
+
+	return msgs, nil
+}
+
 func (r *messageRepository) EditWithUsername(ctx context.Context, content string, id uint, username string) (*models.Message, store.StoreError) {
 	q := r.generator.Update(
 		[]string{

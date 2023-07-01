@@ -10,24 +10,25 @@ import (
 )
 
 func TestMessage_Create(t *testing.T) {
-	// get user
-	user := getUser(t)
+	// Get many users
+	users := getManyUsers(t)
 
-	msg := models.TestMessage(t, user)
+	// Test message from "test_user1"
+	msg := models.TestMessage(t, users[0])
 
-	// create message
+	// Create message
 	_, err := Store.Message.Create(bgCtx(), msg)
 
 	assert.NoError(t, err)
 }
 
 func TestMessage_FindAll(t *testing.T) {
-	// get user
+	// Get user
 	user := getUser(t)
 
 	msg := models.TestMessage(t, user)
 
-	// find messages
+	// Find messages
 	msgs, err := Store.Message.FindAll(bgCtx(), false)
 
 	assert.NoError(t, err)
@@ -44,7 +45,7 @@ func TestMessage_FindAll(t *testing.T) {
 
 	isConstains = false
 
-	// find all messages
+	// Find all messages
 	msgs, err = Store.Message.FindAll(bgCtx(), true)
 
 	assert.NoError(t, err)
@@ -57,7 +58,45 @@ func TestMessage_FindAll(t *testing.T) {
 
 	assert.True(t, isConstains)
 }
+/* 
+func TestMessage_FindAllWithPagination(t *testing.T) {
+	// Get user
+	user := getUser(t)
 
+	msg := models.TestMessage(t, user)
+
+	// Find messages
+	msgs, err := Store.Message.FindAllWithPagination(bgCtx(), 0, 0, false)
+
+	assert.NoError(t, err)
+
+	var isConstains bool
+
+	for _, _msg := range msgs {
+		fmt.Printf("_msg: %v\n", _msg)
+		if _msg.Content == msg.Content {
+			isConstains = true
+		}
+	}
+
+	assert.True(t, isConstains)
+
+	isConstains = false
+
+	// Find all messages
+	msgs, err = Store.Message.FindAll(bgCtx(), true)
+
+	assert.NoError(t, err)
+
+	for _, _msg := range msgs {
+		if _msg.Content == msg.Content {
+			isConstains = true
+		}
+	}
+
+	assert.True(t, isConstains)
+}
+ */
 func TestMessage_Find(t *testing.T) {
 	// get user
 	user := getUser(t)
