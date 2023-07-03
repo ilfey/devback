@@ -241,6 +241,6 @@ func TestQueryGenerator_SelectWithLimit(t *testing.T) {
 
 	assert.True(
 		t,
-		strings.ToLower(query) == "select user_id, count(*) from users left join messages on fk_user_id = user_id where length(content) < 10 group by user_id having count(*) > 10 order by count(*) asc limit 11;",
+		strings.ToLower(query) == "select user_id, count(*) from users left join messages on fk_user_id = user_id where length(content) < 10 group by user_id having count(*) > 10 order by count(*) asc limit 10;",
 	)
 }
