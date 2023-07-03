@@ -26,7 +26,7 @@ type MessageRepository interface {
 	Create(ctx context.Context, message *models.Message) (*models.Message, StoreError)
 	Find(ctx context.Context, id uint) (*models.Message, StoreError)
 	FindAll(ctx context.Context, isIncludeDeleted bool) ([]*models.Message, StoreError)
-	FindAllWithPagination(ctx context.Context, page int, limit int, isIncludeDeleted bool) ([]*models.Message, StoreError)
+	FindAllWithScrolling(ctx context.Context, cursor int, limit int, isIncludeDeleted bool) ([]*models.Message, StoreError)
 	EditWithUsername(ctx context.Context, newContent string, id uint, username string) (*models.Message, StoreError)
 	Edit(ctx context.Context, newContent string, id uint) (*models.Message, StoreError)
 	DeleteWithUsername(ctx context.Context, id uint, username string) StoreError

@@ -11,35 +11,35 @@ import (
 
 func GetMessages(s *store.Store) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		page := 0
-		limit := 5
+		cursor := 0
+		limit := 100
 		includeDeleted := false
 
-		// Get page query
-		pageString := ctx.Query("page")
-		if pageString != "" {
+		// Get cursor query
+		cursorString := ctx.Query("cursor")
+		if cursorString != "" {
 
-			// Try parse page
-			temp, err := strconv.Atoi(pageString)
+			// Try parse cursor
+			temp, err := strconv.Atoi(cursorString)
 			if err != nil {
 				ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 					"error":   "bad request error",
-					"message": "failed to parse \"page\" query",
+					"message": "failed to parse \"cursor\" query",
 				})
 				return
 			}
 
-			// If page < 1
-			if temp < 1 {
+			// If cursor < 1
+			if temp < 0 {
 				ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 					"error":   "bad request error",
-					"message": "\"page\" query cannot be less than 1",
+					"message": "\"cursor\" query cannot be less than 0",
 				})
 				return
 			}
 
-			// Set page
-			page = temp
+			// Set cursor
+			cursor = temp
 		}
 
 		// Get limit query
@@ -56,11 +56,11 @@ func GetMessages(s *store.Store) gin.HandlerFunc {
 				return
 			}
 
-			// If limit not in [1, 50]
-			if temp < 1 || temp > 50 {
+			// If limit not in [1, 100]
+			if temp < 1 || temp > 100 {
 				ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 					"error":   "bad request error",
-					"message": "\"limit\" query must take the values [1, 50]",
+					"message": "\"limit\" query must take the values [1, 100]",
 				})
 				return
 			}
@@ -79,7 +79,7 @@ func GetMessages(s *store.Store) gin.HandlerFunc {
 			}
 		}
 
-		msgs, err := s.Message.FindAllWithPagination(ctx.Request.Context(), page, limit, includeDeleted)
+		msgs, err := s.Message.FindAllWithScrolling(ctx.Request.Context(), cursor, limit, includeDeleted)
 		if err != nil {
 			switch err.Type() {
 			case store.StoreUnknown:

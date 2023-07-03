@@ -106,7 +106,7 @@ func (r *messageRepository) FindAll(ctx context.Context, isIncludeDeleted bool) 
 	return msgs, nil
 }
 
-func (r *messageRepository) FindAllWithPagination(ctx context.Context, page int, limit int, isIncludeDeleted bool) ([]*models.Message, store.StoreError) {
+func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int, limit int, isIncludeDeleted bool) ([]*models.Message, store.StoreError) {
 	config := SelectConfig{
 		Attrs: []string{
 			"message_id",
@@ -134,7 +134,7 @@ func (r *messageRepository) FindAllWithPagination(ctx context.Context, page int,
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	rows, err := r.db.Query(ctx, q, page*limit)
+	rows, err := r.db.Query(ctx, q, cursor)
 	if err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}

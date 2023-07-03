@@ -96,7 +96,7 @@ func (g *QueryGenerator) Select(config SelectConfig) string {
 
 	limit := ""
 	if config.Limit > 0 {
-		limit = fmt.Sprintf(" LIMIT %d", config.Limit+1)
+		limit = fmt.Sprintf(" LIMIT %d", config.Limit)
 	}
 
 	sql := fmt.Sprintf(
