@@ -117,24 +117,25 @@ func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int
 			"created_at",
 			"modified_at",
 		},
-		Condition: "message_id > $$ and is_deleted = false",
+		Condition: "case when $$ = 0 then message_id < (select max(message_id) from messages) else message_id < $$ end and is_deleted = false",
 		OrderBy: []Order{
 			{
 				Attr: "message_id",
+				Desc: true,
 			},
 		},
 		Limit: limit,
 	}
 
 	if isIncludeDeleted {
-		config.Condition = "message_id > $$"
+		config.Condition = "message_id < (select max(message_id) from messages)"
 	}
 
 	q := r.generator.Select(config)
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	rows, err := r.db.Query(ctx, q, cursor)
+	rows, err := r.db.Query(ctx, q, cursor, cursor)
 	if err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
@@ -149,6 +150,10 @@ func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int
 		}
 
 		msgs = append(msgs, msg)
+	}
+
+	for i, j := 0, len(msgs)-1; i < j; i, j = i+1, j-1 {
+		msgs[i], msgs[j] = msgs[j], msgs[i]
 	}
 
 	return msgs, nil
