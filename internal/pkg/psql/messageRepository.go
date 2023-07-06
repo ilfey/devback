@@ -106,7 +106,7 @@ func (r *messageRepository) FindAll(ctx context.Context, isIncludeDeleted bool) 
 	return msgs, nil
 }
 
-func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int, limit int, isIncludeDeleted bool) ([]*models.Message, store.StoreError) {
+func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int, limit int, isInverse bool, isIncludeDeleted bool) ([]*models.Message, store.StoreError) {
 	config := SelectConfig{
 		Attrs: []string{
 			"message_id",
@@ -117,7 +117,7 @@ func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int
 			"created_at",
 			"modified_at",
 		},
-		Condition: "case when $$ = 0 then message_id < (select max(message_id) from messages) else message_id < $$ end and is_deleted = false",
+		// Condition: "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end and is_deleted = false",
 		OrderBy: []Order{
 			{
 				Attr: "message_id",
@@ -127,9 +127,35 @@ func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int
 		Limit: limit,
 	}
 
-	if isIncludeDeleted {
-		config.Condition = "message_id < (select max(message_id) from messages)"
+	if isIncludeDeleted { // For admin
+		if isInverse { // Down
+			config.Condition = "case when $$ = 0 then message_id >= (select min(message_id) from messages) else message_id > $$ end"
+		} else { // Up
+			config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end"
+		}
+	} else { // For users
+		if isInverse { // Down
+			config.Condition = "case when $$ = 0 then message_id >= (select min(message_id) from messages) else message_id > $$ end and is_deleted = false"
+		} else { // Up
+			config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end and is_deleted = false"
+		}
 	}
+
+	// if !isInverse && !isIncludeDeleted {
+	// 	config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end"
+	// } else {
+	// 	if isInverse {
+	// 		if isIncludeDeleted {
+	// 			config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end"
+	// 		} else {
+
+	// 		}
+	// 	}
+	// }
+
+	// if isIncludeDeleted {
+	// 	config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end"
+	// }
 
 	q := r.generator.Select(config)
 

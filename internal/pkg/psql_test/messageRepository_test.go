@@ -206,25 +206,58 @@ func TestMessage_DeleteWithUsername(t *testing.T) {
 
 func TestMessage_FindAllWithPagination(t *testing.T) {
 	// Find messages
-	msgs, err := Store.Message.FindAllWithScrolling(bgCtx(), 0, 0, false)
+	msgs, err := Store.Message.FindAllWithScrolling(bgCtx(), 0, 0, false, false)
 
 	assert.NoError(t, err)
 	assert.Len(t, msgs, 2)
 
-	// Find messages with deleted
-	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), 0, 0, true)
-
-	assert.NoError(t, err)
-	assert.Len(t, msgs, 3)
-
-	// Find messages with deleted
-	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), 1, 1, true)
+	// Find message || scroll up
+	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), 0, 1, false, false)
 
 	assert.NoError(t, err)
 	assert.Len(t, msgs, 1)
 
-	// Find messages with deleted and cursor
-	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), int(msgs[0].Id), 1, true)
+	existMessageId := msgs[0].Id
+
+	// Find message || scroll down
+	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), int(existMessageId-1), 1, true, false)
+
+	assert.NoError(t, err)
+	assert.Len(t, msgs, 1)
+
+	assert.True(t, existMessageId == msgs[0].Id)
+
+	// Find messages with deleted
+	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), 0, 0, false, true)
+
+	assert.NoError(t, err)
+	assert.Len(t, msgs, 3)
+
+	var deletedMessageId uint
+
+	for _, m := range msgs {
+		if m.IsDeleted {
+			deletedMessageId = m.Id
+		}
+	}
+
+	// Find 2 messages with deleted
+	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), 0, 2, false, true)
+
+	fmt.Printf("msgs: %v\n", msgs)
+	fmt.Printf("deletedMessageId: %v\n", deletedMessageId)
+
+	assert.NoError(t, err)
+	assert.Len(t, msgs, 2)
+
+	// Find messages with deleted and cursor || scroll up
+	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), int(deletedMessageId+1), 1, false, true)
+
+	assert.NoError(t, err)
+	assert.Len(t, msgs, 1)
+
+	// Find inverse messages with deleted and cursor || scroll down
+	msgs, err = Store.Message.FindAllWithScrolling(bgCtx(), int(deletedMessageId-1), 1, true, true)
 
 	assert.NoError(t, err)
 	assert.Len(t, msgs, 1)

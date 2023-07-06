@@ -14,6 +14,7 @@ func GetMessages(s *store.Store) gin.HandlerFunc {
 		cursor := 0
 		limit := 100
 		includeDeleted := false
+		inverse := false
 
 		// Get cursor query
 		cursorString := ctx.Query("cursor")
@@ -71,15 +72,21 @@ func GetMessages(s *store.Store) gin.HandlerFunc {
 
 		aCtx := ctx.MustGet(middlewares.AUTH_CONTEXT).(*middlewares.AuthorizationContext)
 
-		if aCtx.IsAdmin() {
-			// Check "include_deleted" param is exists
-			_, ok := ctx.GetQuery("include_deleted")
-			if ok {
+		// Check "inverse" param is exists
+		_, ok := ctx.GetQuery("inverse")
+		if ok {
+			inverse = true
+		}
+
+		// Check "include_deleted" param is exists
+		_, ok = ctx.GetQuery("include_deleted")
+		if ok {
+			if aCtx.IsAdmin() { // Check user is admin
 				includeDeleted = true
 			}
 		}
 
-		msgs, err := s.Message.FindAllWithScrolling(ctx.Request.Context(), cursor, limit, includeDeleted)
+		msgs, err := s.Message.FindAllWithScrolling(ctx.Request.Context(), cursor, limit, inverse, includeDeleted)
 		if err != nil {
 			switch err.Type() {
 			case store.StoreUnknown:
