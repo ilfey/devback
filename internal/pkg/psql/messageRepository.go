@@ -2,6 +2,7 @@ package psql
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/ilfey/devback/internal/pkg/models"
@@ -117,7 +118,6 @@ func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int
 			"created_at",
 			"modified_at",
 		},
-		// Condition: "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end and is_deleted = false",
 		OrderBy: []Order{
 			{
 				Attr: "message_id",
@@ -127,41 +127,37 @@ func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int
 		Limit: limit,
 	}
 
-	if isIncludeDeleted { // For admin
-		if isInverse { // Down
-			config.Condition = "case when $$ = 0 then message_id >= (select min(message_id) from messages) else message_id > $$ end"
-		} else { // Up
-			config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end"
+	if isInverse { // Down
+		// If cursor is equals 0, return top of messages, else next after cursor
+		config.Condition = fmt.Sprintf("message_id > %d", cursor)
+		config.OrderBy = []Order{
+			{
+				Attr: "message_id",
+			},
 		}
-	} else { // For users
-		if isInverse { // Down
-			config.Condition = "case when $$ = 0 then message_id >= (select min(message_id) from messages) else message_id > $$ end and is_deleted = false"
-		} else { // Up
-			config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end and is_deleted = false"
+	} else { // Up
+		if cursor == 0 { // Return last messages
+			config.Condition = "message_id <= (select max(message_id) from messages)"
+		} else {
+			config.Condition = fmt.Sprintf("message_id < %d", cursor)
+		}
+		config.OrderBy = []Order{
+			{
+				Attr: "message_id",
+				Desc: true,
+			},
 		}
 	}
 
-	// if !isInverse && !isIncludeDeleted {
-	// 	config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end"
-	// } else {
-	// 	if isInverse {
-	// 		if isIncludeDeleted {
-	// 			config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end"
-	// 		} else {
-
-	// 		}
-	// 	}
-	// }
-
-	// if isIncludeDeleted {
-	// 	config.Condition = "case when $$ = 0 then message_id <= (select max(message_id) from messages) else message_id < $$ end"
-	// }
+	if !isIncludeDeleted {
+		config.Condition = fmt.Sprintf("%s and is_deleted = false", config.Condition)
+	}
 
 	q := r.generator.Select(config)
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	rows, err := r.db.Query(ctx, q, cursor, cursor)
+	rows, err := r.db.Query(ctx, q)
 	if err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
@@ -176,6 +172,10 @@ func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int
 		}
 
 		msgs = append(msgs, msg)
+	}
+
+	if isInverse {
+		return msgs, nil
 	}
 
 	for i, j := 0, len(msgs)-1; i < j; i, j = i+1, j-1 {
