@@ -76,6 +76,18 @@ func (s *Server) getApiRoutesV1() (routes []*ServerRoute) {
 		},
 		/*
 
+			### Get message by id
+			GET https://{{host}}/messages/{{message_id}}
+
+		*/
+		{
+			role:     GUEST,
+			method:   get,
+			path:     "/messages/:id",
+			endpoint: v1.GetMessage(s.Store),
+		},
+		/*
+
 			### Get all contacts
 			GET https://{{host}}/contacts
 

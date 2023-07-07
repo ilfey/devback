@@ -24,7 +24,7 @@ type UserRepository interface {
 
 type MessageRepository interface {
 	Create(ctx context.Context, message *models.Message) (*models.Message, StoreError)
-	Find(ctx context.Context, id uint) (*models.Message, StoreError)
+	Find(ctx context.Context, id uint, isIncludeDeleted bool) (*models.Message, StoreError)
 	FindAll(ctx context.Context, isIncludeDeleted bool) ([]*models.Message, StoreError)
 	FindAllWithScrolling(ctx context.Context, cursor int, limit int, isInverse bool, isIncludeDeleted bool) ([]*models.Message, StoreError)
 	EditWithUsername(ctx context.Context, newContent string, id uint, username string) (*models.Message, StoreError)

@@ -35,8 +35,9 @@ func (r *messageRepository) Create(ctx context.Context, m *models.Message) (*mod
 	return msg, nil
 }
 
-func (r *messageRepository) Find(ctx context.Context, id uint) (*models.Message, store.StoreError) {
-	q := r.generator.Select(SelectConfig{
+func (r *messageRepository) Find(ctx context.Context, id uint, isIncludeDeleted bool) (*models.Message, store.StoreError) {
+
+	config := SelectConfig{
 		Attrs: []string{
 			"message_id",
 			"fk_user_id",
@@ -47,7 +48,13 @@ func (r *messageRepository) Find(ctx context.Context, id uint) (*models.Message,
 			"modified_at",
 		},
 		Condition: "message_id = $$ and is_deleted = false",
-	})
+	}
+
+	if isIncludeDeleted {
+		config.Condition = "message_id = $$"
+	}
+
+	q := r.generator.Select(config)
 
 	msg := new(models.Message)
 
