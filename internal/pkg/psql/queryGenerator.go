@@ -26,8 +26,7 @@ type SelectConfig struct {
 	GroupBy   []string
 	Having    string
 	OrderBy   []Order
-	FirstRow  int
-	LastRow   int
+	Limit     int
 }
 
 type Join struct {
@@ -96,12 +95,8 @@ func (g *QueryGenerator) Select(config SelectConfig) string {
 	}
 
 	limit := ""
-	if config.FirstRow != 0 {
-		if config.LastRow != 0 {
-			limit = fmt.Sprintf(" LIMIT %d, %d", config.FirstRow, config.LastRow+1)
-		} else {
-			limit = fmt.Sprintf(" LIMIT %d", config.FirstRow+1)
-		}
+	if config.Limit > 0 {
+		limit = fmt.Sprintf(" LIMIT %d", config.Limit)
 	}
 
 	sql := fmt.Sprintf(

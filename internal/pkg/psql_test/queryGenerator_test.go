@@ -212,7 +212,7 @@ func TestQueryGenerator_SelectWithOrder(t *testing.T) {
 	)
 }
 
-func TestQueryGenerator_SelectWithFirstRow(t *testing.T) {
+func TestQueryGenerator_SelectWithLimit(t *testing.T) {
 	query := gen.Select(psql.SelectConfig{
 		Attrs: []string{
 			"user_id",
@@ -236,45 +236,11 @@ func TestQueryGenerator_SelectWithFirstRow(t *testing.T) {
 				Desc: false,
 			},
 		},
-		FirstRow: 10,
+		Limit: 10,
 	})
 
 	assert.True(
 		t,
-		strings.ToLower(query) == "select user_id, count(*) from users left join messages on fk_user_id = user_id where length(content) < 10 group by user_id having count(*) > 10 order by count(*) asc limit 11;",
-	)
-}
-
-func TestQueryGenerator_SelectWithLastRow(t *testing.T) {
-	query := gen.Select(psql.SelectConfig{
-		Attrs: []string{
-			"user_id",
-			"count(*)",
-		},
-		Joins: []psql.Join{
-			{
-				Join:      psql.LEFT,
-				Table:     "messages",
-				Condition: "fk_user_id = user_id",
-			},
-		},
-		Condition: "length(content) < 10",
-		GroupBy: []string{
-			"user_id",
-		},
-		Having: "count(*) > 10",
-		OrderBy: []psql.Order{
-			{
-				Attr: "count(*)",
-				Desc: false,
-			},
-		},
-		FirstRow: 10,
-		LastRow:  20,
-	})
-
-	assert.True(
-		t,
-		strings.ToLower(query) == "select user_id, count(*) from users left join messages on fk_user_id = user_id where length(content) < 10 group by user_id having count(*) > 10 order by count(*) asc limit 10, 21;",
+		strings.ToLower(query) == "select user_id, count(*) from users left join messages on fk_user_id = user_id where length(content) < 10 group by user_id having count(*) > 10 order by count(*) asc limit 10;",
 	)
 }

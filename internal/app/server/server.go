@@ -41,19 +41,21 @@ func NewServer(config *config.Config, logger *logrus.Logger, store *store.Store)
 }
 
 func (s *Server) Build() {
+
+	// Create services
+	s.Services.JWT = services.NewService(s.Config.Key, s.Config.LifeSpan)
+
 	// Add cors middleware
 	s.Router.Use(middlewares.CorsMiddleware())
 
 	// Add logging middleware
 	s.Router.Use(middlewares.LoggingMiddleWare(s.Logger))
 
-	// Create services
-	s.Services.JWT = services.NewService(s.Config.Key, s.Config.LifeSpan)
-
 	// Create groups
-	s.groups.api = s.Router.Group(s.Config.ApiPath)
-	s.groups.admin = s.groups.api.Group("/", middlewares.AdminAuthMiddleware(s.Services.JWT, s.Config))
-	s.groups.user = s.groups.api.Group("/", middlewares.JwtAuthMiddleware(s.Services.JWT))
+	// Api group - group with authorization middleware
+	s.groups.api = s.Router.Group(s.Config.ApiPath, middlewares.AuthorizationMiddleware(s.Config.AdminUsername, s.Services.JWT, s.Logger))
+	s.groups.admin = s.groups.api.Group("/", middlewares.AdminAuthMiddleware())
+	s.groups.user = s.groups.api.Group("/", middlewares.JwtAuthMiddleware())
 
 	// Load templates for public endpoints
 	s.Router.LoadHTMLGlob("./web/template/*")

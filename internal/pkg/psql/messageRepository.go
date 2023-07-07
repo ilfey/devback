@@ -2,6 +2,7 @@ package psql
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/ilfey/devback/internal/pkg/models"
@@ -34,8 +35,9 @@ func (r *messageRepository) Create(ctx context.Context, m *models.Message) (*mod
 	return msg, nil
 }
 
-func (r *messageRepository) Find(ctx context.Context, id uint) (*models.Message, store.StoreError) {
-	q := r.generator.Select(SelectConfig{
+func (r *messageRepository) Find(ctx context.Context, id uint, isIncludeDeleted bool) (*models.Message, store.StoreError) {
+
+	config := SelectConfig{
 		Attrs: []string{
 			"message_id",
 			"fk_user_id",
@@ -46,7 +48,13 @@ func (r *messageRepository) Find(ctx context.Context, id uint) (*models.Message,
 			"modified_at",
 		},
 		Condition: "message_id = $$ and is_deleted = false",
-	})
+	}
+
+	if isIncludeDeleted {
+		config.Condition = "message_id = $$"
+	}
+
+	q := r.generator.Select(config)
 
 	msg := new(models.Message)
 
@@ -101,6 +109,84 @@ func (r *messageRepository) FindAll(ctx context.Context, isIncludeDeleted bool) 
 		}
 
 		msgs = append(msgs, msg)
+	}
+
+	return msgs, nil
+}
+
+func (r *messageRepository) FindAllWithScrolling(ctx context.Context, cursor int, limit int, isInverse bool, isIncludeDeleted bool) ([]*models.Message, store.StoreError) {
+	config := SelectConfig{
+		Attrs: []string{
+			"message_id",
+			"fk_user_id",
+			"content",
+			"fk_reply_message_id",
+			"is_deleted",
+			"created_at",
+			"modified_at",
+		},
+		OrderBy: []Order{
+			{
+				Attr: "message_id",
+				Desc: true,
+			},
+		},
+		Limit: limit,
+	}
+
+	if isInverse { // Down
+		// If cursor is equals 0, return top of messages, else next after cursor
+		config.Condition = fmt.Sprintf("message_id > %d", cursor)
+		config.OrderBy = []Order{
+			{
+				Attr: "message_id",
+			},
+		}
+	} else { // Up
+		if cursor == 0 { // Return last messages
+			config.Condition = "message_id <= (select max(message_id) from messages)"
+		} else {
+			config.Condition = fmt.Sprintf("message_id < %d", cursor)
+		}
+		config.OrderBy = []Order{
+			{
+				Attr: "message_id",
+				Desc: true,
+			},
+		}
+	}
+
+	if !isIncludeDeleted {
+		config.Condition = fmt.Sprintf("%s and is_deleted = false", config.Condition)
+	}
+
+	q := r.generator.Select(config)
+
+	r.logger.Tracef("SQL Query: %s", q)
+
+	rows, err := r.db.Query(ctx, q)
+	if err != nil {
+		return nil, store.NewErrorAndLog(err, r.logger)
+	}
+
+	var msgs []*models.Message
+
+	for rows.Next() {
+		msg := new(models.Message)
+
+		if err := rows.Scan(&msg.Id, &msg.Username, &msg.Content, &msg.Reply, &msg.IsDeleted, &msg.CreatedAt, &msg.ModifiedAt); err != nil {
+			return nil, store.NewErrorAndLog(err, r.logger)
+		}
+
+		msgs = append(msgs, msg)
+	}
+
+	if isInverse {
+		return msgs, nil
+	}
+
+	for i, j := 0, len(msgs)-1; i < j; i, j = i+1, j-1 {
+		msgs[i], msgs[j] = msgs[j], msgs[i]
 	}
 
 	return msgs, nil

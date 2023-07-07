@@ -4,20 +4,16 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ilfey/devback/internal/pkg/iservices"
 )
 
-func JwtAuthMiddleware(jwt iservices.JWT) gin.HandlerFunc {
+func JwtAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		aCtx := ctx.MustGet(AUTH_CONTEXT).(*AuthorizationContext)
 
-		token := jwt.GetToken(ctx)
-
-		_, err := jwt.ValidateToken(token)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error":   "authorization error",
-				"message": "not authorized",
-			})
+		// Check authorization
+		if !aCtx.IsAuthorized() {
+			// If not authorized return 404
+			ctx.AbortWithStatus(http.StatusNotFound)
 			return
 		}
 
