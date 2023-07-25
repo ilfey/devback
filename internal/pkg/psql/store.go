@@ -9,16 +9,41 @@ import (
 func NewStore(db *pgxpool.Pool, logger *logrus.Logger) *store.Store {
 	s := new(store.Store)
 
-	s.User = &userRepository{
+	s.Contact = &contactRepository{
 		db: db,
 		logger: logger.WithFields(logrus.Fields{
-			"repository": "user",
+			"repository": "contact",
+		}),
+	}
+
+	s.Image = &imageRepository{
+		db: db,
+		logger: logger.WithFields(logrus.Fields{
+			"repository": "image",
 		}),
 		generator: NewQueryGenerator(
-			"users",
+			"images",
 			[]string{
-				"user_id",
-				"password",
+				"image_id",
+				"fk_link_id",
+				"is_deleted",
+				"created_at",
+				"modified_at",
+			},
+		),
+	}
+
+	s.Link = &linkRepository{
+		db: db,
+		logger: logger.WithFields(logrus.Fields{
+			"repository": "link",
+		}),
+		generator: NewQueryGenerator(
+			"links",
+			[]string{
+				"link_id",
+				"description",
+				"url",
 				"is_deleted",
 				"created_at",
 				"modified_at",
@@ -45,18 +70,41 @@ func NewStore(db *pgxpool.Pool, logger *logrus.Logger) *store.Store {
 		),
 	}
 
-	s.Link = &linkRepository{
+	s.Project = &projectRepository{
 		db: db,
 		logger: logger.WithFields(logrus.Fields{
-			"repository": "link",
+			"repository": "project",
 		}),
+		generator: NewQueryGenerator(
+			"projects",
+			[]string{
+				"project_id",
+				"title",
+				"description",
+				"fk_source_link_id",
+				"fk_url_link_id",
+				"is_deleted",
+				"modified_at",
+				"created_at",
+			},
+		),
 	}
 
-	s.Contact = &contactRepository{
+	s.User = &userRepository{
 		db: db,
 		logger: logger.WithFields(logrus.Fields{
-			"repository": "contact",
+			"repository": "user",
 		}),
+		generator: NewQueryGenerator(
+			"users",
+			[]string{
+				"user_id",
+				"password",
+				"is_deleted",
+				"created_at",
+				"modified_at",
+			},
+		),
 	}
 
 	return s

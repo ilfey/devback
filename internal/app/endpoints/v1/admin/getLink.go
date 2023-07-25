@@ -22,7 +22,7 @@ func GetLink(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		link, _err := s.Link.Find(ctx.Request.Context(), uint(id))
+		link, _err := s.Link.Find(ctx.Request.Context(), uint(id), true)
 		if _err != nil {
 			switch _err.Type() {
 			case store.StoreUnknown:

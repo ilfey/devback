@@ -58,3 +58,13 @@ func TestManyMessages(t *testing.T) []*Message {
 		},
 	}
 }
+
+// Returns non-existent test link
+func TestLink(t *testing.T) *Link {
+	t.Helper()
+
+	return &Link{
+		Url: "https://github.com/ilfey/devback",
+		Description: "This project repository",
+	}
+}
