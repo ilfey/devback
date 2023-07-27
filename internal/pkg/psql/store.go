@@ -42,6 +42,7 @@ func NewStore(db *pgxpool.Pool, logger *logrus.Logger) *store.Store {
 			"links",
 			[]string{
 				"link_id",
+				"fk_user_id",
 				"description",
 				"url",
 				"is_deleted",

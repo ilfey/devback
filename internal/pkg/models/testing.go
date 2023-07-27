@@ -60,10 +60,11 @@ func TestManyMessages(t *testing.T) []*Message {
 }
 
 // Returns non-existent test link
-func TestLink(t *testing.T) *Link {
+func TestLink(t *testing.T, u *User) *Link {
 	t.Helper()
 
 	return &Link{
+		Username: u.Username,
 		Url: "https://github.com/ilfey/devback",
 		Description: "This project repository",
 	}

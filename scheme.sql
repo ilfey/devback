@@ -16,22 +16,24 @@ CREATE TABLE IF NOT EXISTS users(
 CREATE TABLE IF NOT EXISTS messages(
   message_id bigint primary key generated always as identity, 
   content varchar(2000) not null,
-  fk_user_id varchar(16) not null,
+  fk_user_id varchar(16),
   fk_reply_message_id bigint,
   modified_at timestamp default now(),
   created_at timestamp default now(),
   is_deleted boolean not null default false,
-  foreign key(fk_reply_message_id) references messages(message_id) on delete set null,
-  foreign key(fk_user_id) references users(user_id) on delete cascade
+  foreign key(fk_reply_message_id) references messages(message_id) on delete set null on update cascade,
+  foreign key(fk_user_id) references users(user_id) on delete set null on update cascade
 );
 
 CREATE TABLE IF NOT EXISTS links(
   link_id bigint primary key generated always as identity,
+  fk_user_id varchar(16),
   description varchar(256),
   url varchar(2000) not null,
   modified_at timestamp default now(),
   created_at timestamp default now(),
-  is_deleted boolean not null default false
+  is_deleted boolean not null default false,
+  foreign key(fk_user_id) references users(user_id) on delete set null on update cascade
 );
 
 CREATE TABLE IF NOT EXISTS contacts(

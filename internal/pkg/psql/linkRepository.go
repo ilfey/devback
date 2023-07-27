@@ -19,6 +19,7 @@ type linkRepository struct {
 func (r *linkRepository) Create(ctx context.Context, m *models.Link) (*models.Link, store.StoreError) {
 
 	q := r.generator.Insert([]string{
+		"fk_user_id",
 		"description",
 		"url",
 	})
@@ -30,12 +31,12 @@ func (r *linkRepository) Create(ctx context.Context, m *models.Link) (*models.Li
 	var row pgx.Row
 
 	if m.Description == "" {
-		row = r.db.QueryRow(ctx, q, nil, m.Url)
+		row = r.db.QueryRow(ctx, q, m.Username, nil, m.Url)
 	} else {
-		row = r.db.QueryRow(ctx, q, m.Description, m.Url)
+		row = r.db.QueryRow(ctx, q, m.Username, m.Description, m.Url)
 	}
 
-	if err := row.Scan(&l.Id, &l.Url, &l.Description, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
+	if err := row.Scan(&l.Id, &l.Username, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
 
@@ -46,6 +47,7 @@ func (r *linkRepository) Find(ctx context.Context, id uint, isIncludeDeleted boo
 	config := SelectConfig{
 		Attrs: []string{
 			"link_id",
+			"fk_user_id",
 			"description",
 			"url",
 			"is_deleted",
@@ -65,7 +67,7 @@ func (r *linkRepository) Find(ctx context.Context, id uint, isIncludeDeleted boo
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	if err := r.db.QueryRow(ctx, q, id).Scan(&l.Id, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
+	if err := r.db.QueryRow(ctx, q, id).Scan(&l.Id, &l.Username, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
 
@@ -76,6 +78,7 @@ func (r *linkRepository) FindAll(ctx context.Context, isIncludeDeleted bool) ([]
 	config := SelectConfig{
 		Attrs: []string{
 			"link_id",
+			"fk_user_id",
 			"description",
 			"url",
 			"is_deleted",
@@ -107,7 +110,7 @@ func (r *linkRepository) FindAll(ctx context.Context, isIncludeDeleted bool) ([]
 	for rows.Next() {
 		link := new(models.Link)
 
-		if err := rows.Scan(&link.Id, &link.Description, &link.Url, &link.IsDeleted, &link.CreatedAt, &link.ModifiedAt); err != nil {
+		if err := rows.Scan(&link.Id, &link.Username, &link.Description, &link.Url, &link.IsDeleted, &link.CreatedAt, &link.ModifiedAt); err != nil {
 			return nil, store.NewErrorAndLog(err, r.logger)
 		}
 
@@ -160,7 +163,7 @@ func (r *linkRepository) Edit(ctx context.Context, description, url string, id u
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	if err := r.db.QueryRow(ctx, q, description, url, id).Scan(&l.Id, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
+	if err := r.db.QueryRow(ctx, q, description, url, id).Scan(&l.Id, &l.Username, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
 
@@ -179,7 +182,7 @@ func (r *linkRepository) EditUrl(ctx context.Context, url string, id uint) (*mod
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	if err := r.db.QueryRow(ctx, q, url, id).Scan(&l.Id, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
+	if err := r.db.QueryRow(ctx, q, url, id).Scan(&l.Id, &l.Username, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
 
@@ -198,7 +201,7 @@ func (r *linkRepository) EditDescription(ctx context.Context, description string
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	if err := r.db.QueryRow(ctx, q, description, id).Scan(&l.Id, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
+	if err := r.db.QueryRow(ctx, q, description, id).Scan(&l.Id, &l.Username, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
 
@@ -217,7 +220,7 @@ func (r *linkRepository) Restore(ctx context.Context, id uint) (*models.Link, st
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	if err := r.db.QueryRow(ctx, q, false, id).Scan(&l.Id, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
+	if err := r.db.QueryRow(ctx, q, false, id).Scan(&l.Id, &l.Username, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
 

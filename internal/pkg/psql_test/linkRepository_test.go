@@ -9,7 +9,10 @@ import (
 )
 
 func TestLink_Create(t *testing.T) {
-	l := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	l := models.TestLink(t, user)
 
 	// Create link
 	_, err := Store.Link.Create(bgCtx(), l)
@@ -24,12 +27,15 @@ func TestLink_FindAll(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	l := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	l := models.TestLink(t, user)
 
 	var isContains bool
 
 	for _, link := range links {
-		if link.Url == l.Url && link.Description == l.Description {
+		if link.Username == l.Username && link.Url == l.Url && link.Description == l.Description {
 			isContains = true
 		}
 	}
@@ -44,7 +50,7 @@ func TestLink_FindAll(t *testing.T) {
 	isContains = false
 
 	for _, link := range links {
-		if link.Url == l.Url && link.Description == l.Description {
+		if link.Username == l.Username && link.Url == l.Url && link.Description == l.Description {
 			isContains = true
 		}
 	}
@@ -58,10 +64,13 @@ func TestLink_Find(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	link := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	link := models.TestLink(t, user)
 
 	for _, _link := range links {
-		if _link.Url == link.Url && _link.Description == link.Description {
+		if _link.Username == link.Username && _link.Url == link.Url && _link.Description == link.Description {
 			link = _link
 		}
 	}
@@ -79,7 +88,10 @@ func TestLink_EditUrl(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	link := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	link := models.TestLink(t, user)
 
 	for _, _link := range links {
 		if _link.Url == link.Url && _link.Description == link.Description {
@@ -102,10 +114,13 @@ func TestLink_EditDescription(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	link := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	link := models.TestLink(t, user)
 
 	for _, _link := range links {
-		if _link.Url == "https://google.com" && _link.Description == link.Description {
+		if _link.Username == link.Username && _link.Url == "https://google.com" && _link.Description == link.Description {
 			link = _link
 		}
 	}
@@ -125,20 +140,24 @@ func TestLink_Edit(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	link := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	link := models.TestLink(t, user)
 
 	for _, _link := range links {
-		if _link.Url == "https://google.com" && _link.Description == "The search engine" {
+		if _link.Username == link.Username && _link.Url == "https://google.com" && _link.Description == "The search engine" {
 			link = _link
 		}
 	}
 
-	testLink := models.TestLink(t)
+	testLink := models.TestLink(t, user)
 
 	_link, err := Store.Link.Edit(bgCtx(), testLink.Description, testLink.Url, link.Id)
 
 	assert.NoError(t, err)
 
+	assert.True(t, _link.Username == testLink.Username)
 	assert.True(t, _link.Description == testLink.Description)
 	assert.True(t, _link.Url == testLink.Url)
 }
@@ -149,10 +168,13 @@ func TestLink_Delete(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	link := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	link := models.TestLink(t, user)
 
 	for _, _link := range links {
-		if _link.Url == link.Url && _link.Description == link.Description {
+		if _link.Username == link.Username && _link.Url == link.Url && _link.Description == link.Description {
 			link = _link
 		}
 	}
@@ -176,10 +198,13 @@ func TestLink_Restore(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	link := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	link := models.TestLink(t, user)
 
 	for _, _link := range links {
-		if _link.Url == link.Url && _link.Description == link.Description {
+		if _link.Username == link.Username && _link.Url == link.Url && _link.Description == link.Description {
 			link = _link
 		}
 	}
@@ -198,10 +223,13 @@ func TestLink_DeletePermanently(t *testing.T) {
 
 	assert.NoError(t, err)
 
-	link := models.TestLink(t)
+	// Get user
+	user := getUser(t)
+
+	link := models.TestLink(t, user)
 
 	for _, _link := range links {
-		if _link.Url == link.Url && _link.Description == link.Description {
+		if _link.Username == link.Username && _link.Url == link.Url && _link.Description == link.Description {
 			link = _link
 		}
 	}
@@ -217,4 +245,6 @@ func TestLink_DeletePermanently(t *testing.T) {
 	assert.Error(t, err)
 
 	assert.Nil(t, _link)
+
+	removeUser(t)
 }
