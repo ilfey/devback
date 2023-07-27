@@ -65,7 +65,7 @@ func (r *linkRepository) Find(ctx context.Context, id uint, isIncludeDeleted boo
 
 	r.logger.Tracef("SQL Query: %s", q)
 
-	if err := r.db.QueryRow(ctx, q, id).Scan(&l.Id, &l.Url, &l.Description, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
+	if err := r.db.QueryRow(ctx, q, id).Scan(&l.Id, &l.Description, &l.Url, &l.IsDeleted, &l.CreatedAt, &l.ModifiedAt); err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
 	}
 

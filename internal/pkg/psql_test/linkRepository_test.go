@@ -8,18 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-/*
-Create
-Find
-FindAll
-Delete
-DeletePermanently
-Edit
-EditUrl
-EditDescription
-Restore
-*/
-
 func TestLink_Create(t *testing.T) {
 	l := models.TestLink(t)
 
@@ -82,7 +70,7 @@ func TestLink_Find(t *testing.T) {
 	_link, err := Store.Link.Find(bgCtx(), link.Id, false)
 
 	assert.NoError(t, err)
-	assert.NotNil(t, reflect.DeepEqual(_link, link))
+	assert.True(t, reflect.DeepEqual(_link, link))
 }
 
 func TestLink_EditUrl(t *testing.T) {
@@ -145,7 +133,7 @@ func TestLink_Edit(t *testing.T) {
 		}
 	}
 
-    testLink := models.TestLink(t)
+	testLink := models.TestLink(t)
 
 	_link, err := Store.Link.Edit(bgCtx(), testLink.Description, testLink.Url, link.Id)
 
@@ -153,4 +141,80 @@ func TestLink_Edit(t *testing.T) {
 
 	assert.True(t, _link.Description == testLink.Description)
 	assert.True(t, _link.Url == testLink.Url)
+}
+
+func TestLink_Delete(t *testing.T) {
+	// Find links
+	links, err := Store.Link.FindAll(bgCtx(), false)
+
+	assert.NoError(t, err)
+
+	link := models.TestLink(t)
+
+	for _, _link := range links {
+		if _link.Url == link.Url && _link.Description == link.Description {
+			link = _link
+		}
+	}
+
+	// Delete link
+	err = Store.Link.Delete(bgCtx(), link.Id)
+
+	assert.NoError(t, err)
+
+	// Find link
+	_link, err := Store.Link.Find(bgCtx(), link.Id, false)
+
+	assert.Error(t, err)
+
+	assert.Nil(t, _link)
+}
+
+func TestLink_Restore(t *testing.T) {
+	// Find links
+	links, err := Store.Link.FindAll(bgCtx(), true)
+
+	assert.NoError(t, err)
+
+	link := models.TestLink(t)
+
+	for _, _link := range links {
+		if _link.Url == link.Url && _link.Description == link.Description {
+			link = _link
+		}
+	}
+
+	// Restore link
+	_link, err := Store.Link.Restore(bgCtx(), link.Id)
+
+	assert.NoError(t, err)
+
+	assert.False(t, _link.IsDeleted)
+}
+
+func TestLink_DeletePermanently(t *testing.T) {
+	// Find links
+	links, err := Store.Link.FindAll(bgCtx(), false)
+
+	assert.NoError(t, err)
+
+	link := models.TestLink(t)
+
+	for _, _link := range links {
+		if _link.Url == link.Url && _link.Description == link.Description {
+			link = _link
+		}
+	}
+
+	// Delete link
+	err = Store.Link.DeletePermanently(bgCtx(), link.Id)
+
+	assert.NoError(t, err)
+
+	// Find link
+	_link, err := Store.Link.Find(bgCtx(), link.Id, false)
+
+	assert.Error(t, err)
+
+	assert.Nil(t, _link)
 }
