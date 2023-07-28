@@ -217,6 +217,43 @@ func TestLink_Restore(t *testing.T) {
 	assert.False(t, _link.IsDeleted)
 }
 
+func TestLink_DeleteWithUsername(t *testing.T) {
+	// Find links
+	links, err := Store.Link.FindAll(bgCtx(), false)
+
+	assert.NoError(t, err)
+
+	// Get user
+	user := getUser(t)
+
+	link := models.TestLink(t, user)
+
+	for _, _link := range links {
+		if _link.Username == link.Username && _link.Url == link.Url && _link.Description == link.Description {
+			link = _link
+		}
+	}
+
+	// Delete link
+	err = Store.Link.DeleteWithUsername(bgCtx(), link.Id, user.Username)
+
+	assert.NoError(t, err)
+
+	// Find link
+	_link, err := Store.Link.Find(bgCtx(), link.Id, false)
+
+	assert.Error(t, err)
+
+	assert.Nil(t, _link)
+
+	// Restore link
+	_link, err = Store.Link.Restore(bgCtx(), link.Id)
+
+	assert.NoError(t, err)
+
+	assert.False(t, _link.IsDeleted)
+}
+
 func TestLink_DeletePermanently(t *testing.T) {
 	// Find links
 	links, err := Store.Link.FindAll(bgCtx(), false)

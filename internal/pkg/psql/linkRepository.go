@@ -138,6 +138,24 @@ func (r *linkRepository) Delete(ctx context.Context, id uint) store.StoreError {
 	return nil
 }
 
+func (r *linkRepository) DeleteWithUsername(ctx context.Context, id uint, username string) store.StoreError {
+
+	q := r.generator.Update(
+		[]string{
+			"is_deleted",
+		},
+		"link_id = $$ and fk_user_id = $$",
+	)
+
+	r.logger.Tracef("SQL Query: %s", q)
+
+	if _, err := r.db.Exec(ctx, q, true, id, username); err != nil {
+		return store.NewErrorAndLog(err, r.logger)
+	}
+
+	return nil
+}
+
 func (r *linkRepository) DeletePermanently(ctx context.Context, id uint) store.StoreError {
 	q := r.generator.Delete("link_id = $1")
 

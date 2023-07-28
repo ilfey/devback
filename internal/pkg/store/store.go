@@ -35,6 +35,7 @@ type LinkRepository interface {
 	Find(ctx context.Context, id uint, isIncludeDeleted bool) (*models.Link, StoreError)
 	FindAll(ctx context.Context, isIncludeDeleted bool) ([]*models.Link, StoreError)
 	Delete(ctx context.Context, id uint) StoreError
+	DeleteWithUsername(ctx context.Context, id uint, username string) StoreError
 	DeletePermanently(ctx context.Context, id uint) StoreError
 	Edit(ctx context.Context, newDescription string, newUrl string, id uint) (*models.Link, StoreError)
 	EditUrl(ctx context.Context, newUrl string, id uint) (*models.Link, StoreError)
