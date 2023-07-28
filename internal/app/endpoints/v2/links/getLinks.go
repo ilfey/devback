@@ -1,16 +1,28 @@
-package admin
+package links
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ilfey/devback/internal/app/middlewares"
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
 func GetLinks(s *store.Store) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		includeDeleted := false
 
-		links, err := s.Link.FindAll(ctx.Request.Context(), false) // TODO: add query param
+		aCtx := ctx.MustGet(middlewares.AUTH_CONTEXT).(*middlewares.AuthorizationContext)
+
+		// Check "include_deleted" param is exists
+		_, ok := ctx.GetQuery("include_deleted")
+		if ok {
+			if aCtx.IsAdmin() { // Check user is admin
+				includeDeleted = true
+			}
+		}
+
+		links, err := s.Link.FindAll(ctx.Request.Context(), includeDeleted)
 		if err != nil {
 			switch err.Type() {
 			case store.StoreUnknown:

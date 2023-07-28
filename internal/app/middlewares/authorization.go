@@ -66,3 +66,10 @@ func (ctx *AuthorizationContext) IsAdmin() bool {
 	// Check username is equals admin's username
 	return ctx.username == ctx.admin
 }
+
+
+func (ctx *AuthorizationContext) IsAuthorizeRequired() (string, bool) {
+	ok := ctx.IsAuthorized()
+	
+	return ctx.username, ok
+}
