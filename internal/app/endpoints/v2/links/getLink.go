@@ -1,15 +1,18 @@
-package admin
+package links
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ilfey/devback/internal/app/middlewares"
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
 func GetLink(s *store.Store) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		includeDeleted := false
+
 		idString := ctx.Param("id")
 
 		id, err := strconv.ParseUint(idString, 10, 64)
@@ -22,7 +25,17 @@ func GetLink(s *store.Store) gin.HandlerFunc {
 			return
 		}
 
-		link, _err := s.Link.Find(ctx.Request.Context(), uint(id))
+		aCtx := ctx.MustGet(middlewares.AUTH_CONTEXT).(*middlewares.AuthorizationContext)
+
+		// Check "include_deleted" param is exists
+		_, ok := ctx.GetQuery("include_deleted")
+		if ok {
+			if aCtx.IsAdmin() { // Check user is admin
+				includeDeleted = true
+			}
+		}
+
+		link, _err := s.Link.Find(ctx.Request.Context(), uint(id), includeDeleted)
 		if _err != nil {
 			switch _err.Type() {
 			case store.StoreUnknown:

@@ -76,6 +76,9 @@ func (s *Server) Build() {
 
 	// Load api endpoints
 	s.HandleApiRoutes(s.getApiRoutesV1, "v1")
+
+	// Load api endpoints
+	s.HandleApiRoutes(s.getApiRoutesV2, "v2")
 }
 
 func (s *Server) Run() error {
@@ -85,25 +88,45 @@ func (s *Server) Run() error {
 
 func (s *Server) HandleApiRoutes(fn func() []*ServerRoute, v string) {
 	routes := fn()
-	for _, route := range routes {
 
-		switch route.role {
-		case ADMIN:
-			route.path = "/" + v + s.Config.AdminPath + route.path
-			s.groups.admin.Handle(route.method, route.path, route.endpoint)
-		case USER:
-			route.path = "/" + v + "/users" + route.path
-			s.groups.user.Handle(route.method, route.path, route.endpoint)
-		default:
-			route.path = "/" + v + route.path
-			s.groups.api.Handle(route.method, route.path, route.endpoint)
+	s.Logger.Infof("Api %s", v)
+
+	switch v {
+	case "v1":
+		for _, route := range routes {
+
+			switch route.role {
+			case V1_ADMIN:
+				route.path = "/" + v + s.Config.AdminPath + route.path
+				s.groups.admin.Handle(route.method, route.path, route.endpoint)
+			case V1_USER:
+				route.path = "/" + v + "/users" + route.path
+				s.groups.user.Handle(route.method, route.path, route.endpoint)
+			default:
+				route.path = "/" + v + route.path
+				s.groups.api.Handle(route.method, route.path, route.endpoint)
+			}
+
+			routeLogger := s.Logger.WithFields(logrus.Fields{
+				"Method": route.method,
+				"Path":   s.Config.ApiPath + route.path,
+			})
+
+			routeLogger.Info()
 		}
+	case "v2":
+		for _, route := range routes {
 
-		routeLogger := s.Logger.WithFields(logrus.Fields{
-			"Method": route.method,
-			"Path":   s.Config.ApiPath + route.path,
-		})
+			route.path = "/" + v + string(route.section) + route.path
+			s.groups.api.Handle(route.method, route.path, route.endpoint)
 
-		routeLogger.Info()
+			routeLogger := s.Logger.WithFields(logrus.Fields{
+				"Method": route.method,
+				"Path":   s.Config.ApiPath + route.path,
+			})
+
+			routeLogger.Info()
+		}
 	}
+
 }

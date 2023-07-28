@@ -79,6 +79,8 @@ func TestMessage_Find(t *testing.T) {
 		}
 	}
 
+	assert.True(t, msg.Id != 0)
+
 	// Find message
 	_msg, err := Store.Message.Find(bgCtx(), msg.Id, false)
 

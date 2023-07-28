@@ -1,16 +1,24 @@
-package admin
+package links
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/ilfey/devback/internal/app/middlewares"
 	"github.com/ilfey/devback/internal/pkg/store"
 )
 
 func RestoreLink(s *store.Store) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		idString := ctx.Param("id")
+
+		aCtx := ctx.MustGet(middlewares.AUTH_CONTEXT).(*middlewares.AuthorizationContext)
+
+		if !aCtx.IsAdmin() {
+			aCtx.AbortWithStatus(http.StatusForbidden)
+			return
+		}
 
 		id, err := strconv.ParseUint(idString, 10, 64)
 		if err != nil {
