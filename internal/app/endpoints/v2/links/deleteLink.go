@@ -45,7 +45,7 @@ func DeleteLink(s *store.Store) gin.HandlerFunc {
 			}
 		}
 
-		if permanently { 
+		if permanently {
 			// Delete permanently (for admin only)
 			if err := s.Link.DeletePermanently(ctx.Request.Context(), uint(id)); err != nil {
 				switch err.Type() {
@@ -57,9 +57,9 @@ func DeleteLink(s *store.Store) gin.HandlerFunc {
 				}
 				return
 			}
-		} else { 
+		} else {
 			// Delete
-			if aCtx.IsAdmin() { 
+			if aCtx.IsAdmin() {
 				// Delete
 				if err := s.Link.Delete(ctx.Request.Context(), uint(id)); err != nil {
 					switch err.Type() {
@@ -71,7 +71,7 @@ func DeleteLink(s *store.Store) gin.HandlerFunc {
 					}
 					return
 				}
-			} else { 
+			} else {
 				// Delete with username
 				if err := s.Link.DeleteWithUsername(ctx.Request.Context(), uint(id), username); err != nil {
 					switch err.Type() {

@@ -10,4 +10,3 @@ type imageRepository struct {
 	db        *pgxpool.Pool
 	logger    *logrus.Entry
 }
-

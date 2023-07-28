@@ -35,41 +35,40 @@ func (r *projectRepository) Create(ctx context.Context, m *models.Project) (*mod
 }
 
 func (r *projectRepository) FindAll(ctx context.Context, isIncludeDeleted bool) ([]*models.Project, store.StoreError) {
-    config := SelectConfig{
-        Attrs: []string{
-            "project_id",
-            "title",
-            "description",
-            "fk_source_link_id",
-            "fk_url_link_id",
-            "is_deleted",
-            "created_at",
-            "modified_at",
-        },
-        OrderBy: []Order{
-            {
-                Attr: "project_id",
-            },
-        },
-    }
+	config := SelectConfig{
+		Attrs: []string{
+			"project_id",
+			"title",
+			"description",
+			"fk_source_link_id",
+			"fk_url_link_id",
+			"is_deleted",
+			"created_at",
+			"modified_at",
+		},
+		OrderBy: []Order{
+			{
+				Attr: "project_id",
+			},
+		},
+	}
 
-    if !isIncludeDeleted {
-        config.Condition = "is_deleted = false"
-    }
+	if !isIncludeDeleted {
+		config.Condition = "is_deleted = false"
+	}
 
-    q := r.generator.Select(config)
+	q := r.generator.Select(config)
 
-    r.logger.Tracef("SQL Query: %s", q)
+	r.logger.Tracef("SQL Query: %s", q)
 
-    
 	rows, err := r.db.Query(ctx, q)
 	if err != nil {
 		return nil, store.NewErrorAndLog(err, r.logger)
-	}   
+	}
 
-    var projects []*models.Project
+	var projects []*models.Project
 
-    for rows.Next() {
+	for rows.Next() {
 		project := new(models.Project)
 
 		if err := rows.Scan(&project.Id, &project.Title, &project.Description, &project.Source, &project.Url, project.IsDeleted, &project.CreatedAt, &project.ModifiedAt); err != nil {
@@ -79,5 +78,5 @@ func (r *projectRepository) FindAll(ctx context.Context, isIncludeDeleted bool) 
 		projects = append(projects, project)
 	}
 
-    return projects, nil
+	return projects, nil
 }

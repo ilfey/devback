@@ -67,9 +67,8 @@ func (ctx *AuthorizationContext) IsAdmin() bool {
 	return ctx.username == ctx.admin
 }
 
-
 func (ctx *AuthorizationContext) IsAuthorizeRequired() (string, bool) {
 	ok := ctx.IsAuthorized()
-	
+
 	return ctx.username, ok
 }

@@ -27,7 +27,6 @@ type ContactRepository interface {
 }
 
 type ImageRepository interface {
-
 }
 
 type LinkRepository interface {

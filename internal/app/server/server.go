@@ -88,7 +88,7 @@ func (s *Server) Run() error {
 
 func (s *Server) HandleApiRoutes(fn func() []*ServerRoute, v string) {
 	routes := fn()
-	
+
 	s.Logger.Infof("Api %s", v)
 
 	switch v {
